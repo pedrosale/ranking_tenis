@@ -1151,14 +1151,9 @@ const firebaseConfig = {
     measurementId: "COLE_SEU_MEASUREMENT_ID_AQUI"
 };
 
-const LOCAL_STORAGE_KEY = "segunda-sagrada-ranking";
-const hasFirebaseConfig = !Object.values(firebaseConfig).some(value =>
-    String(value).includes("COLE_")
-);
-
-let db = null;
-let rankingRef = null;
-let useFirebase = hasFirebaseConfig;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const rankingRef = doc(db, "tennisRanking", "main");
 
 let state = {
     players: [],
@@ -1169,32 +1164,11 @@ let state = {
 
 let firebaseLoaded = false;
 
-function escapeHTML(value) {
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-function loadLocalState() {
-    try {
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (saved) state = JSON.parse(saved);
-    } catch (error) {
-        console.warn("Não foi possível carregar o estado local.", error);
-    }
-}
-
-function saveLocalState() {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-}
-
 function getWednesdaysFrom2026() {
     const dates = [];
     const start = new Date(2026, 4, 20);
     const end = new Date(2026, 11, 31);
+
     const current = new Date(start);
 
     while (current.getDay() !== 3) {
@@ -1202,10 +1176,7 @@ function getWednesdaysFrom2026() {
     }
 
     while (current <= end) {
-        const year = current.getFullYear();
-        const month = String(current.getMonth() + 1).padStart(2, "0");
-        const day = String(current.getDate()).padStart(2, "0");
-        dates.push(`${year}-${month}-${day}`);
+        dates.push(current.toISOString().split("T")[0]);
         current.setDate(current.getDate() + 7);
     }
 
@@ -1216,10 +1187,8 @@ const wednesdays2026 = getWednesdaysFrom2026();
 
 function getTodayISO() {
     const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    today.setHours(0, 0, 0, 0);
+    return today.toISOString().split("T")[0];
 }
 
 function getVisibleWednesdays() {
@@ -1233,10 +1202,10 @@ function formatDateBR(dateString) {
 }
 
 function normalizeState() {
-    if (!Array.isArray(state.players)) state.players = [];
-    if (!Array.isArray(state.schedule)) state.schedule = [];
-    if (!Array.isArray(state.matches)) state.matches = [];
-    if (!state.availability || typeof state.availability !== "object") state.availability = {};
+    if (!state.players) state.players = [];
+    if (!state.schedule) state.schedule = [];
+    if (!state.matches) state.matches = [];
+    if (!state.availability) state.availability = {};
 
     state.players.forEach(player => {
         if (!state.availability[player]) {
@@ -1274,6 +1243,7 @@ function normalizeState() {
 function suggestMatchesByDate() {
     const playedIds = new Set(state.matches.map(m => m.id));
     let pendingMatches = state.schedule.filter(m => !playedIds.has(m.id));
+
     const gamesCount = {};
 
     state.players.forEach(player => {
@@ -1295,6 +1265,7 @@ function suggestMatchesByDate() {
             .sort((a, b) => {
                 const totalA = gamesCount[a.playerA] + gamesCount[a.playerB];
                 const totalB = gamesCount[b.playerA] + gamesCount[b.playerB];
+
                 return totalA - totalB;
             });
 
@@ -1302,97 +1273,66 @@ function suggestMatchesByDate() {
 
         if (selectedMatch) {
             pendingMatches = pendingMatches.filter(m => m.id !== selectedMatch.id);
+
             gamesCount[selectedMatch.playerA]++;
             gamesCount[selectedMatch.playerB]++;
         }
 
-        return { date, match: selectedMatch };
+        return {
+            date,
+            match: selectedMatch
+        };
     });
 }
 
 function renderSuggestions() {
     const container = document.getElementById("suggestions");
-    const suggestions = suggestMatchesByDate().filter(item => item.match);
+    const suggestions = suggestMatchesByDate()
+        .filter(item => item.match);
 
     if (!suggestions.length) {
         container.innerHTML = `<div class="status">Nenhum confronto possível com a disponibilidade atual.</div>`;
         return;
     }
 
-    container.innerHTML = suggestions.map(item => `
-        <div class="match">
-            <div>
-                <strong>${formatDateBR(item.date)} · ${escapeHTML(item.match.playerA)} x ${escapeHTML(item.match.playerB)}</strong><br>
-                <small>Sugestão automática: ambos disponíveis e com menor volume de jogos.</small>
+    container.innerHTML = suggestions.map(item => {
+        return `
+            <div class="match">
+                <div>
+                    <strong>${formatDateBR(item.date)} · ${item.match.playerA} x ${item.match.playerB}</strong><br>
+                    <small>Sugestão automática: ambos disponíveis e com menor volume de jogos.</small>
+                </div>
             </div>
-        </div>
-    `).join("");
+        `;
+    }).join("");
 }
 
 async function saveState() {
     normalizeState();
+    await setDoc(rankingRef, state);
+}
 
-    if (useFirebase && rankingRef) {
-        await setDoc(rankingRef, state);
+onSnapshot(rankingRef, async (snapshot) => {
+    if (snapshot.exists()) {
+        state = snapshot.data();
+        normalizeState();
+
+        if (
+            state.players.length === 8 &&
+            state.schedule.length === 28 &&
+            (!snapshot.data().schedule || snapshot.data().schedule.length === 0)
+        ) {
+            await saveState();
+        }
+
     } else {
-        saveLocalState();
-        render();
-    }
-}
-
-async function startDataLayer() {
-    normalizeState();
-
-    if (!hasFirebaseConfig) {
-        useFirebase = false;
-        loadLocalState();
         normalizeState();
-        firebaseLoaded = true;
-        render();
-        return;
+        await saveState();
     }
 
-    try {
-        const app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
-        rankingRef = doc(db, "tennisRanking", "main");
-
-        onSnapshot(rankingRef, async (snapshot) => {
-            if (snapshot.exists()) {
-                state = snapshot.data();
-                normalizeState();
-
-                if (
-                    state.players.length === 8 &&
-                    state.schedule.length === 28 &&
-                    (!snapshot.data().schedule || snapshot.data().schedule.length === 0)
-                ) {
-                    await saveState();
-                }
-            } else {
-                normalizeState();
-                await saveState();
-            }
-
-            firebaseLoaded = true;
-            render();
-        }, (error) => {
-            console.warn("Firebase indisponível. Usando armazenamento local.", error);
-            useFirebase = false;
-            loadLocalState();
-            normalizeState();
-            firebaseLoaded = true;
-            render();
-        });
-    } catch (error) {
-        console.warn("Falha ao iniciar Firebase. Usando armazenamento local.", error);
-        useFirebase = false;
-        loadLocalState();
-        normalizeState();
-        firebaseLoaded = true;
-        render();
-    }
-}
+    firebaseLoaded = true;
+    render();
+});
 
 window.addPlayer = async function () {
     const input = document.getElementById("playerName");
@@ -1484,8 +1424,10 @@ function calculateRanking() {
 
         A.jogos++;
         B.jogos++;
+
         A.gamesVencidos += match.scoreA;
         A.gamesSofridos += match.scoreB;
+
         B.gamesVencidos += match.scoreB;
         B.gamesSofridos += match.scoreA;
 
@@ -1515,10 +1457,13 @@ function calculateRanking() {
 function sortRanking(players) {
     return players.sort((a, b) => {
         if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+
         const direct = directConfrontation(a.player, b.player);
         if (direct) return direct;
+
         if (b.saldo !== a.saldo) return b.saldo - a.saldo;
         if (b.vitorias !== a.vitorias) return b.vitorias - a.vitorias;
+
         return a.player.localeCompare(b.player);
     });
 }
@@ -1530,14 +1475,17 @@ function directConfrontation(playerA, playerB) {
     );
 
     if (!match) return 0;
+
     if (match.winner === playerA) return -1;
     if (match.winner === playerB) return 1;
+
     return 0;
 }
 
 function renderPlayers() {
     const list = document.getElementById("playersList");
     const status = document.getElementById("playersStatus");
+
     status.innerHTML = `${state.players.length}/8 jogadores cadastrados`;
 
     if (!state.players.length) {
@@ -1546,12 +1494,13 @@ function renderPlayers() {
     }
 
     list.innerHTML = state.players
-        .map(p => `<div class="player-pill">${escapeHTML(p)}</div>`)
+        .map(p => `<div class="player-pill">${p}</div>`)
         .join("");
 }
 
 function renderMatchSelect() {
     const select = document.getElementById("matchSelect");
+
     const playedIds = new Set(state.matches.map(m => m.id));
     const pending = state.schedule.filter(m => !playedIds.has(m.id));
 
@@ -1566,7 +1515,7 @@ function renderMatchSelect() {
     }
 
     select.innerHTML = pending.map(m =>
-        `<option value="${escapeHTML(m.id)}">${escapeHTML(m.playerA)} x ${escapeHTML(m.playerB)}</option>`
+        `<option value="${m.id}">${m.playerA} x ${m.playerB}</option>`
     ).join("");
 }
 
@@ -1589,7 +1538,7 @@ function renderRanking() {
             <td>
                 <div class="player-name">
                     ${i === 0 ? `<span class="leader-mark">1</span>` : ``}
-                    <strong>${escapeHTML(p.player)}</strong>
+                    <strong>${p.player}</strong>
                 </div>
             </td>
             <td>${p.jogos}</td>
@@ -1628,15 +1577,15 @@ function renderAvailability() {
 
     body.innerHTML = state.players.map(player => `
         <tr>
-            <td><strong>${escapeHTML(player)}</strong></td>
+            <td><strong>${player}</strong></td>
             ${visibleWednesdays.map(date => {
                 const checked = state.availability?.[player]?.[date] !== false;
                 return `
                     <td class="check-cell">
-                        <input
+                        <input 
                             type="checkbox"
                             ${checked ? "checked" : ""}
-                            onchange='toggleAvailability(${JSON.stringify(player)}, ${JSON.stringify(date)}, this.checked)'
+                            onchange="toggleAvailability('${player}', '${date}', this.checked)"
                         />
                     </td>
                 `;
@@ -1656,10 +1605,10 @@ function renderHistory() {
     history.innerHTML = state.matches.map(m => `
         <div class="match">
             <div>
-                <strong>${escapeHTML(m.playerA)} ${m.scoreA} x ${m.scoreB} ${escapeHTML(m.playerB)}</strong><br>
-                <small>Vencedor: ${escapeHTML(m.winner)}</small>
+                <strong>${m.playerA} ${m.scoreA} x ${m.scoreB} ${m.playerB}</strong><br>
+                <small>Vencedor: ${m.winner}</small>
             </div>
-            <button class="danger" onclick='deleteMatch(${JSON.stringify(m.id)})'>Excluir</button>
+            <button class="danger" onclick="deleteMatch('${m.id}')">Excluir</button>
         </div>
     `).join("");
 }
@@ -1694,7 +1643,7 @@ function renderHero() {
         document.getElementById("heroMatches").innerHTML = "0 jogos";
         document.getElementById("heroBalance").innerHTML = "saldo 0";
     } else {
-        document.getElementById("heroLeader").innerHTML = escapeHTML(leader.player);
+        document.getElementById("heroLeader").innerHTML = leader.player;
         document.getElementById("heroPoints").innerHTML = `${leader.pontos} pontos`;
         document.getElementById("heroMatches").innerHTML = `${leader.jogos} jogos`;
         document.getElementById("heroBalance").innerHTML = `saldo ${leader.saldo}`;
@@ -1708,11 +1657,12 @@ function renderHero() {
         return;
     }
 
-    document.getElementById("nextMatchHero").innerHTML = `${escapeHTML(next.match.playerA)}<br>x<br>${escapeHTML(next.match.playerB)}`;
+    document.getElementById("nextMatchHero").innerHTML = `${next.match.playerA}<br>x<br>${next.match.playerB}`;
     document.getElementById("nextMatchDate").innerHTML = `${formatDateBR(next.date)}`;
 }
 
 window.resetAll = async function () {
+
     const senha = prompt("Digite a senha de administrador:");
 
     if (senha !== "adminsagrada") {
@@ -1730,6 +1680,7 @@ window.resetAll = async function () {
     };
 
     await saveState();
+
     alert("Banco resetado com sucesso.");
 };
 
@@ -1746,7 +1697,5 @@ function render() {
     renderStatus();
     renderHero();
 }
-
-startDataLayer();
 </script></body>
 </html>
