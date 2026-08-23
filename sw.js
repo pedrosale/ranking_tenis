@@ -1,5 +1,5 @@
-const CACHE_NAME = "segunda-sagrada-v3";
-const APP_SHELL = ["./", "./index.html", "./manifest.json"];
+const CACHE_NAME = "segunda-sagrada-v4";
+const APP_SHELL = ["./", "./index.html", "./instalar.html", "./manifest.json"];
 
 self.addEventListener("install", event => {
   self.skipWaiting();
