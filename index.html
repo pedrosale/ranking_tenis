@@ -1616,7 +1616,7 @@ function renderHistory() {
 }
 
 function renderStatus() {
-    const totalGames = state.players.length === 10 ? 28 : 0;
+    const totalGames = state.players.length === 10 ? 45 : 0;
     const played = state.matches.length;
     const pending = totalGames - played;
 
@@ -1631,7 +1631,7 @@ function renderStatus() {
 
     const rankingBadge = document.getElementById("rankingBadge");
     rankingBadge.innerHTML = state.players.length === 10
-        ? `${played}/28 jogos lançados`
+        ? `${played}/45 jogos lançados`
         : `Temporada em formação`;
 }
 
