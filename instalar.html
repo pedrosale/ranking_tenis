@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#17110d" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <title>Instalar Segunda Sagrada</title>
+  <style>
+    :root{--bg:#17110d;--card:#251913;--line:rgba(244,234,215,.16);--cream:#f4ead7;--muted:rgba(244,234,215,.68);--gold:#d9b878;--green:#2f7b50;--danger:#c75146}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--cream);background:radial-gradient(circle at 10% 5%,rgba(191,113,74,.24),transparent 30%),radial-gradient(circle at 90% 15%,rgba(47,123,80,.22),transparent 28%),linear-gradient(145deg,#17110d,#2b1710 58%,#102419);padding:20px}
+    .wrap{max-width:680px;margin:0 auto}.hero{padding:26px 4px 20px}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:900}.hero h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,10vw,70px);line-height:.92;letter-spacing:-.05em;margin:12px 0}.hero p{color:var(--muted);font-size:16px;line-height:1.6;margin:0;max-width:580px}
+    .card{border:1px solid var(--line);border-radius:26px;background:linear-gradient(180deg,rgba(255,248,236,.085),rgba(255,248,236,.035));box-shadow:0 22px 70px rgba(0,0,0,.32);padding:22px;margin:14px 0;backdrop-filter:blur(18px)}
+    .device{display:flex;align-items:center;gap:12px;margin-bottom:16px}.device-icon{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:rgba(217,184,120,.12);border:1px solid rgba(217,184,120,.22);font-size:24px}.device strong{display:block;font-size:17px}.device span{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+    .steps{display:grid;gap:12px;margin-top:14px}.step{display:grid;grid-template-columns:34px 1fr;gap:11px;align-items:start;padding:13px;border:1px solid var(--line);border-radius:17px;background:rgba(0,0,0,.13)}.num{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(47,123,80,.22);font-weight:900}.step b{display:block;margin-bottom:3px}.step span{color:var(--muted);font-size:14px;line-height:1.45}
+    button,.linkbtn{width:100%;border:0;border-radius:16px;padding:15px 16px;font:inherit;font-weight:900;font-size:16px;cursor:pointer;text-align:center;text-decoration:none;display:block;margin-top:14px}.primary{background:linear-gradient(135deg,#2f7b50,#173f2a);color:#fff8ec;box-shadow:0 14px 34px rgba(0,0,0,.28)}.secondary{background:rgba(255,248,236,.075);color:var(--cream);border:1px solid var(--line)}
+    .hint{font-size:13px;color:var(--muted);line-height:1.5;margin-top:12px}.ok{border-color:rgba(47,123,80,.42);background:rgba(47,123,80,.12)}.warn{border-color:rgba(217,184,120,.32)}.hidden{display:none!important}.footer{text-align:center;color:rgba(244,234,215,.43);font-size:12px;padding:18px 0 28px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Segunda Sagrada · App oficial</div>
+      <h1>Instalar no celular</h1>
+      <p>Esta página identifica seu aparelho e navegador e mostra o caminho certo para instalar o ranking como aplicativo.</p>
+    </section>
+
+    <section class="card" id="statusCard">
+      <div class="device">
+        <div class="device-icon" id="deviceIcon">📱</div>
+        <div><strong id="deviceTitle">Identificando seu aparelho…</strong><span id="browserLabel">Aguarde um instante</span></div>
+      </div>
+      <div id="installedBox" class="hidden">
+        <div class="card ok" style="margin:0;padding:15px"><strong>✓ O app já está instalado</strong><div class="hint">Você já está usando a versão instalada da Segunda Sagrada.</div></div>
+        <a class="linkbtn primary" href="./">Abrir Segunda Sagrada</a>
+      </div>
+      <div id="installContent"></div>
+    </section>
+
+    <section class="card warn">
+      <strong>Se o botão de instalar não aparecer</strong>
+      <div class="hint">Alguns navegadores escondem a instalação no menu. As instruções acima mudam automaticamente para o navegador que você está usando.</div>
+    </section>
+
+    <a class="linkbtn secondary" href="./">Continuar no navegador</a>
+    <div class="footer">Um único link · Android · iPhone · principais navegadores</div>
+  </main>
+
+<script>
+let deferredPrompt = null;
+const ua = navigator.userAgent || '';
+const vendor = navigator.vendor || '';
+const isAndroid = /Android/i.test(ua);
+const isIOS = /iPad|iPhone|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isSamsung = /SamsungBrowser/i.test(ua);
+const isEdge = /EdgA|EdgiOS|Edg\//i.test(ua);
+const isFirefox = /Firefox|FxiOS/i.test(ua);
+const isOpera = /OPR|Opera/i.test(ua);
+const isCriOS = /CriOS/i.test(ua);
+const isChrome = (/Chrome|CriOS/i.test(ua) && !isEdge && !isOpera && !isSamsung);
+const isSafari = isIOS && /Safari/i.test(ua) && !isCriOS && !/FxiOS|EdgiOS|OPiOS/i.test(ua);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+function steps(items){return `<div class="steps">${items.map((s,i)=>`<div class="step"><div class="num">${i+1}</div><div><b>${s[0]}</b><span>${s[1]}</span></div></div>`).join('')}</div>`}
+function setDevice(title,browser,icon='📱'){document.getElementById('deviceTitle').textContent=title;document.getElementById('browserLabel').textContent=browser;document.getElementById('deviceIcon').textContent=icon}
+function showInstalled(){document.getElementById('installedBox').classList.remove('hidden');document.getElementById('installContent').classList.add('hidden')}
+function nativeButton(){return `<button id="nativeInstall" class="primary">Instalar Segunda Sagrada</button><div class="hint">O navegador abrirá a confirmação de instalação.</div>`}
+
+function renderGuide(){
+  const box=document.getElementById('installContent');
+  if(isStandalone){showInstalled();return}
+
+  if(isIOS){
+    setDevice('iPhone / iPad', isSafari?'Safari':isCriOS?'Chrome no iPhone':isFirefox?'Firefox no iPhone':isEdge?'Edge no iPhone':'Navegador no iPhone','🍎');
+    if(isSafari){
+      box.innerHTML=steps([
+        ['Toque em Compartilhar','Use o ícone de compartilhar do Safari (quadrado com seta para cima).'],
+        ['Escolha “Adicionar à Tela de Início”','Talvez seja necessário rolar a lista de ações.'],
+        ['Confirme em “Adicionar”','O ícone da Segunda Sagrada aparecerá na sua tela inicial.']
+      ]);
+    } else {
+      box.innerHTML=`<div class="hint" style="font-size:14px">No iPhone, a instalação mais confiável é feita pelo Safari.</div>`+steps([
+        ['Abra esta página no Safari','No menu do navegador atual, escolha abrir no Safari ou copie este endereço.'],
+        ['No Safari, toque em Compartilhar','Use o quadrado com seta para cima.'],
+        ['Toque em “Adicionar à Tela de Início”','Depois confirme em “Adicionar”.']
+      ])+`<button class="secondary" id="copyLink">Copiar link desta página</button>`;
+    }
+    return;
+  }
+
+  if(isAndroid){
+    const browser=isSamsung?'Samsung Internet':isEdge?'Microsoft Edge':isFirefox?'Firefox':isOpera?'Opera':isChrome?'Google Chrome':'Navegador Android';
+    setDevice('Android',browser,'🤖');
+    if(deferredPrompt){box.innerHTML=nativeButton();bindNative();return}
+    if(isSamsung){box.innerHTML=steps([['Abra o menu','Toque no botão ≡ do Samsung Internet.'],['Escolha “Adicionar página a”','Depois selecione “Tela inicial”.'],['Confirme','O app aparecerá entre seus aplicativos.']]);return}
+    if(isChrome){box.innerHTML=steps([['Abra o menu ⋮','Toque nos três pontos do Chrome.'],['Toque em “Instalar app”','Em algumas versões pode aparecer “Adicionar à tela inicial”.'],['Confirme a instalação','A Segunda Sagrada ficará disponível como aplicativo.']]);return}
+    if(isEdge){box.innerHTML=steps([['Abra o menu','Toque no botão de menu do Edge.'],['Procure “Adicionar ao telefone” ou “Instalar”','O nome varia conforme a versão.'],['Confirme','O atalho/app será criado.']]);return}
+    if(isFirefox){box.innerHTML=steps([['Abra o menu ⋮','Toque no menu do Firefox.'],['Escolha “Instalar”','Se não houver, use “Adicionar à tela inicial”.'],['Confirme','O app será adicionado ao aparelho.']]);return}
+    box.innerHTML=steps([['Abra o menu do navegador','Procure uma opção de instalação ou tela inicial.'],['Escolha “Instalar app” ou equivalente','Também pode aparecer “Adicionar à tela inicial”.'],['Confirme','Depois abra pelo novo ícone.']]);
+    return;
+  }
+
+  setDevice('Computador', isEdge?'Microsoft Edge':isFirefox?'Firefox':isChrome?'Google Chrome':vendor||'Navegador','💻');
+  if(deferredPrompt){box.innerHTML=nativeButton();bindNative();return}
+  box.innerHTML=steps([['Abra o menu do navegador','Chrome e Edge normalmente exibem a opção de instalar este site como aplicativo.'],['Escolha “Instalar Segunda Sagrada”','O app abrirá em uma janela própria.']]);
+}
+
+function bindNative(){const b=document.getElementById('nativeInstall');if(!b)return;b.addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();const choice=await deferredPrompt.userChoice;deferredPrompt=null;if(choice.outcome==='accepted') b.textContent='Instalação iniciada';else renderGuide()})}
+
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;renderGuide()});
+window.addEventListener('appinstalled',()=>showInstalled());
+document.addEventListener('click',async e=>{if(e.target&&e.target.id==='copyLink'){try{await navigator.clipboard.writeText(location.href);e.target.textContent='Link copiado ✓'}catch{prompt('Copie este link:',location.href)}}});
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+renderGuide();
+setTimeout(renderGuide,1200);
+</script>
+</body>
+</html>
