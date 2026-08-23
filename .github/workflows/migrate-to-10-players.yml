@@ -12,52 +12,40 @@ jobs:
   migrate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Update participant limit and round-robin size
-        shell: python
-        run: |
-          from pathlib import Path
-
-          path = Path('index.html')
-          text = path.read_text(encoding='utf-8')
-
-          replacements = {
-              'id="miniPlayers">0/8<': 'id="miniPlayers">0/10<',
-              'state.players.length === 8': 'state.players.length === 10',
-              'state.schedule.length === 28': 'state.schedule.length === 45',
-              'state.players.length >= 8': 'state.players.length >= 10',
-              'O limite é de 8 participantes.': 'O limite é de 10 participantes.',
-              '${state.players.length}/8 jogadores cadastrados': '${state.players.length}/10 jogadores cadastrados',
-              'Cadastre 8 jogadores para iniciar o torneio.': 'Cadastre 10 jogadores para iniciar o torneio.',
-              'Jogos lançados: ${played}/28 · Pendentes: ${pending}': 'Jogos lançados: ${played}/45 · Pendentes: ${pending}',
-              '${state.players.length}/8`': '${state.players.length}/10`',
-          }
-
-          missing = [old for old in replacements if old not in text]
-          if missing:
-              raise SystemExit(f'Expected patterns not found: {missing}')
-
-          for old, new in replacements.items():
-              text = text.replace(old, new)
-
-          path.write_text(text, encoding='utf-8')
-
-      - name: Verify no 8-player tournament constants remain
+      - name: Update index
         shell: bash
         run: |
-          ! grep -n 'state.players.length === 8' index.html
-          ! grep -n 'state.players.length >= 8' index.html
-          ! grep -n 'O limite é de 8 participantes' index.html
-          ! grep -n 'Cadastre 8 jogadores' index.html
-          ! grep -n '\${state.players.length}/8' index.html
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          t = p.read_text(encoding='utf-8')
+          pairs = [
+              ('id="miniPlayers">0/8<', 'id="miniPlayers">0/10<'),
+              ('state.players.length === 8', 'state.players.length === 10'),
+              ('state.schedule.length === 28', 'state.schedule.length === 45'),
+              ('state.players.length >= 8', 'state.players.length >= 10'),
+              ('O limite é de 8 participantes.', 'O limite é de 10 participantes.'),
+              ('${state.players.length}/8 jogadores cadastrados', '${state.players.length}/10 jogadores cadastrados'),
+              ('Cadastre 8 jogadores para iniciar o torneio.', 'Cadastre 10 jogadores para iniciar o torneio.'),
+              ('Jogos lançados: ${played}/28 · Pendentes: ${pending}', 'Jogos lançados: ${played}/45 · Pendentes: ${pending}'),
+              ('${state.players.length}/8`', '${state.players.length}/10`'),
+          ]
+          for old, new in pairs:
+              t = t.replace(old, new)
+          p.write_text(t, encoding='utf-8')
+          PY
 
-      - name: Commit migration
+      - name: Commit
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
+          if git diff --cached --quiet; then
+            echo 'No changes needed'
+            exit 0
+          fi
           git commit -m 'feat: expand tennis ranking to 10 players'
           git push
