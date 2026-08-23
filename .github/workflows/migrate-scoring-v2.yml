@@ -1,0 +1,200 @@
+name: Migrate scoring rules v2
+
+on:
+  push:
+    paths:
+      - '.github/workflows/migrate-scoring-v2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update scoring rules
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          t = p.read_text(encoding='utf-8')
+
+          old_rules = '''                <div class="section-note">
+                    O ranking combina resultado da partida, volume de games vencidos e critérios de desempate.
+                </div>
+            </div>
+
+            <div class="score-rules">
+                <div class="rule-card">
+                    <div class="rule-number">10</div>
+                    <div>
+                        <strong>Vitória</strong>
+                        <span>O vencedor recebe 10 pontos fixos pela vitória, além dos games vencidos na partida.</span>
+                    </div>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">6</div>
+                    <div>
+                        <strong>Derrota</strong>
+                        <span>O perdedor recebe 6 pontos fixos pela participação, além dos games vencidos na partida.</span>
+                    </div>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">+</div>
+                    <div>
+                        <strong>Games também contam</strong>
+                        <span>Exemplo: em um jogo 9x7, o vencedor soma 19 pontos no total; o perdedor soma 13 pontos.</span>
+                    </div>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">≠</div>
+                    <div>
+                        <strong>Critérios de desempate</strong>
+                        <span>Em caso de empate em pontos, o sistema considera confronto direto, saldo de games, número de vitórias e, por fim, ordem alfabética.</span>
+                    </div>
+                </div>'''
+
+          new_rules = '''                <div class="section-note">
+                    Pontuação por resultado, com saldo de games como primeiro critério de desempate.
+                </div>
+            </div>
+
+            <div class="score-rules">
+                <div class="rule-card">
+                    <div class="rule-number">3</div>
+                    <div>
+                        <strong>Vitória normal</strong>
+                        <span>Em resultados de 8x0 até 8x6, o vencedor recebe 3 pontos e o perdedor recebe 0.</span>
+                    </div>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">2/1</div>
+                    <div>
+                        <strong>Vitória no tie-break</strong>
+                        <span>Se a partida chegar a 7x7, o resultado final é 8x7: vencedor recebe 2 pontos e perdedor recebe 1.</span>
+                    </div>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">8</div>
+                    <div>
+                        <strong>Formato do placar</strong>
+                        <span>Resultados válidos: 8x0 a 8x6 ou 8x7. O sistema bloqueia placares fora desse formato.</span>
+                    </div>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-number">≠</div>
+                    <div>
+                        <strong>Critérios de desempate</strong>
+                        <span>Em caso de empate em pontos, vence quem tiver maior saldo de games; depois, maior número de vitórias e, por fim, ordem alfabética.</span>
+                    </div>
+                </div>'''
+
+          if old_rules not in t:
+              raise SystemExit('Old rules block not found')
+          t = t.replace(old_rules, new_rules, 1)
+
+          old_validation = '''    if (!matchId) return alert("Selecione um confronto.");
+    if (scoreA === scoreB) return alert("Tênis não permite empate no resultado final.");
+    if (scoreA < 0 || scoreB < 0) return alert("Os games não podem ser negativos.");
+
+    const selected = state.schedule.find(m => m.id === matchId);'''
+
+          new_validation = '''    if (!matchId) return alert("Selecione um confronto.");
+    if (scoreA < 0 || scoreB < 0) return alert("Os games não podem ser negativos.");
+
+    const winnerScore = Math.max(scoreA, scoreB);
+    const loserScore = Math.min(scoreA, scoreB);
+    const validScore = winnerScore === 8 && loserScore >= 0 && loserScore <= 7;
+
+    if (!validScore) {
+        return alert("Placar inválido. Use 8x0 até 8x6 ou 8x7 em caso de tie-break.");
+    }
+
+    const selected = state.schedule.find(m => m.id === matchId);'''
+
+          if old_validation not in t:
+              raise SystemExit('Old validation block not found')
+          t = t.replace(old_validation, new_validation, 1)
+
+          old_scoring = '''        if (match.scoreA > match.scoreB) {
+            A.vitorias++;
+            B.derrotas++;
+            A.pontos += 10;
+            B.pontos += 6;
+        } else {
+            B.vitorias++;
+            A.derrotas++;
+            B.pontos += 10;
+            A.pontos += 6;
+        }
+
+        A.pontos += match.scoreA;
+        B.pontos += match.scoreB;'''
+
+          new_scoring = '''        const isTieBreak = Math.min(match.scoreA, match.scoreB) === 7;
+        const winnerPoints = isTieBreak ? 2 : 3;
+        const loserPoints = isTieBreak ? 1 : 0;
+
+        if (match.scoreA > match.scoreB) {
+            A.vitorias++;
+            B.derrotas++;
+            A.pontos += winnerPoints;
+            B.pontos += loserPoints;
+        } else {
+            B.vitorias++;
+            A.derrotas++;
+            B.pontos += winnerPoints;
+            A.pontos += loserPoints;
+        }'''
+
+          if old_scoring not in t:
+              raise SystemExit('Old scoring block not found')
+          t = t.replace(old_scoring, new_scoring, 1)
+
+          old_sort = '''        if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+
+        const direct = directConfrontation(a.player, b.player);
+        if (direct) return direct;
+
+        if (b.saldo !== a.saldo) return b.saldo - a.saldo;
+        if (b.vitorias !== a.vitorias) return b.vitorias - a.vitorias;'''
+
+          new_sort = '''        if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+        if (b.saldo !== a.saldo) return b.saldo - a.saldo;
+        if (b.vitorias !== a.vitorias) return b.vitorias - a.vitorias;'''
+
+          if old_sort not in t:
+              raise SystemExit('Old sorting block not found')
+          t = t.replace(old_sort, new_sort, 1)
+
+          p.write_text(t, encoding='utf-8')
+
+          sw = Path('sw.js')
+          s = sw.read_text(encoding='utf-8')
+          s = s.replace('segunda-sagrada-v2', 'segunda-sagrada-v3')
+          sw.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Verify migration
+        shell: bash
+        run: |
+          grep -q 'winnerPoints = isTieBreak ? 2 : 3' index.html
+          grep -q 'loserPoints = isTieBreak ? 1 : 0' index.html
+          grep -q 'Placar inválido' index.html
+          grep -q 'maior saldo de games' index.html
+          ! grep -q 'A.pontos += match.scoreA' index.html
+          ! grep -q 'A.pontos += 10' index.html
+          grep -q 'segunda-sagrada-v3' sw.js
+
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html sw.js
+          git commit -m 'feat: update tennis scoring rules'
+          git push
