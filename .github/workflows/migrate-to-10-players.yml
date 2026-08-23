@@ -31,6 +31,8 @@ jobs:
               ('Cadastre 8 jogadores para iniciar o torneio.', 'Cadastre 10 jogadores para iniciar o torneio.'),
               ('Jogos lançados: ${played}/28 · Pendentes: ${pending}', 'Jogos lançados: ${played}/45 · Pendentes: ${pending}'),
               ('${state.players.length}/8`', '${state.players.length}/10`'),
+              ('state.players.length === 10 ? 28 : 0', 'state.players.length === 10 ? 45 : 0'),
+              ('${played}/28 jogos lançados', '${played}/45 jogos lançados'),
           ]
           for old, new in pairs:
               t = t.replace(old, new)
@@ -47,5 +49,5 @@ jobs:
             echo 'No changes needed'
             exit 0
           fi
-          git commit -m 'feat: expand tennis ranking to 10 players'
+          git commit -m 'fix: correct 10-player round-robin totals'
           git push
