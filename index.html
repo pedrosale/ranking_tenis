@@ -931,7 +931,7 @@ td:nth-child(2) {
 
             <div class="hero-panel-bottom">
                 <div class="mini-stat">
-                    <strong id="miniPlayers">0/8</strong>
+                    <strong id="miniPlayers">0/10</strong>
                     <span>jogadores</span>
                 </div>
                 <div class="mini-stat">
@@ -1227,7 +1227,7 @@ function normalizeState() {
         }
     });
 
-    if (state.players.length === 8 && (!state.schedule || state.schedule.length === 0)) {
+    if (state.players.length === 10 && (!state.schedule || state.schedule.length === 0)) {
         state.schedule = [];
 
         for (let i = 0; i < state.players.length; i++) {
@@ -1320,8 +1320,8 @@ onSnapshot(rankingRef, async (snapshot) => {
         normalizeState();
 
         if (
-            state.players.length === 8 &&
-            state.schedule.length === 28 &&
+            state.players.length === 10 &&
+            state.schedule.length === 45 &&
             (!snapshot.data().schedule || snapshot.data().schedule.length === 0)
         ) {
             await saveState();
@@ -1341,7 +1341,7 @@ window.addPlayer = async function () {
     const name = input.value.trim();
 
     if (!name) return alert("Informe o nome do jogador.");
-    if (state.players.length >= 8) return alert("O limite é de 8 participantes.");
+    if (state.players.length >= 10) return alert("O limite é de 10 participantes.");
     if (state.players.includes(name)) return alert("Este jogador já foi cadastrado.");
 
     state.players.push(name);
@@ -1488,7 +1488,7 @@ function renderPlayers() {
     const list = document.getElementById("playersList");
     const status = document.getElementById("playersStatus");
 
-    status.innerHTML = `${state.players.length}/8 jogadores cadastrados`;
+    status.innerHTML = `${state.players.length}/10 jogadores cadastrados`;
 
     if (!state.players.length) {
         list.innerHTML = `<div class="status">Nenhum participante cadastrado ainda.</div>`;
@@ -1616,21 +1616,21 @@ function renderHistory() {
 }
 
 function renderStatus() {
-    const totalGames = state.players.length === 8 ? 28 : 0;
+    const totalGames = state.players.length === 10 ? 28 : 0;
     const played = state.matches.length;
     const pending = totalGames - played;
 
     document.getElementById("matchStatus").innerHTML =
-        state.players.length === 8
-        ? `Jogos lançados: ${played}/28 · Pendentes: ${pending}`
-        : `Cadastre 8 jogadores para iniciar o torneio.`;
+        state.players.length === 10
+        ? `Jogos lançados: ${played}/45 · Pendentes: ${pending}`
+        : `Cadastre 10 jogadores para iniciar o torneio.`;
 
-    document.getElementById("miniPlayers").innerHTML = `${state.players.length}/8`;
+    document.getElementById("miniPlayers").innerHTML = `${state.players.length}/10`;
     document.getElementById("miniPlayed").innerHTML = `${played}`;
     document.getElementById("miniPending").innerHTML = `${Math.max(pending, 0)}`;
 
     const rankingBadge = document.getElementById("rankingBadge");
-    rankingBadge.innerHTML = state.players.length === 8
+    rankingBadge.innerHTML = state.players.length === 10
         ? `${played}/28 jogos lançados`
         : `Temporada em formação`;
 }
