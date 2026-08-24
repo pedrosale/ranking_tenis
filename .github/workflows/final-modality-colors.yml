@@ -1,0 +1,39 @@
+name: Final Modality Colors
+on:
+  push:
+    paths: ['.github/workflows/final-modality-colors.yml']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          # Geral: bolinha dourada pulsante + botão Duplas azul
+          p=Path('master.css'); t=p.read_text(encoding='utf-8')
+          t=t.replace('.kicker{grid-area:kicker;color:var(--gold-soft);font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}', '.kicker{grid-area:kicker;display:inline-flex;align-items:center;gap:10px;width:fit-content;color:var(--gold-soft);font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}.kicker:before{content:"";width:8px;height:8px;flex:0 0 8px;border-radius:999px;background:#d9b878;box-shadow:0 0 0 6px rgba(217,184,120,.14);animation:generalPulse 1.9s ease-in-out infinite}@keyframes generalPulse{0%,100%{box-shadow:0 0 0 5px rgba(217,184,120,.12);opacity:.78}50%{box-shadow:0 0 0 9px rgba(217,184,120,.04),0 0 16px rgba(217,184,120,.38);opacity:1}}')
+          t=t.replace('.btn.doubles{background:linear-gradient(135deg,#b8904f,#765a2d)}', '.btn.doubles{background:linear-gradient(135deg,#3f79b8,#214b7a)}')
+          p.write_text(t,encoding='utf-8')
+
+          # Duplas: bolinha azul da mesma identidade do botão
+          p=Path('duplas.html'); t=p.read_text(encoding='utf-8')
+          t=t.replace('background:#b8904f;box-shadow:0 0 0 6px rgba(184,144,79,.16)', 'background:#4f8dcc;box-shadow:0 0 0 6px rgba(79,141,204,.16)', 1)
+          p.write_text(t,encoding='utf-8')
+
+          # cache bust para o CSS do Geral
+          p=Path('master.html'); t=p.read_text(encoding='utf-8')
+          import re
+          t=re.sub(r'master\.css\?v=[^"\']+', 'master.css?v=20260824-identity2', t, count=1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.css master.html duplas.html
+          git rm .github/workflows/final-modality-colors.yml
+          git commit -m 'style: set gold general green simple blue doubles identity'
+          git push
