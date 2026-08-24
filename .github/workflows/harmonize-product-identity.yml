@@ -1,85 +1,30 @@
-name: Harmonize Product Identity
+name: Finalize Product Identity Cleanup
 on:
   push:
     paths: ['.github/workflows/harmonize-product-identity.yml']
 permissions:
   contents: write
 jobs:
-  harmonize:
+  cleanup:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Harmonize copy and information architecture
-        run: |
+      - run: |
           python - <<'PY'
           from pathlib import Path
+          p=Path('duplas.html')
+          t=p.read_text(encoding='utf-8')
+          rule='.section-eyebrow{color:var(--gold-soft);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:900;margin-bottom:6px}'
+          t=t.replace(rule+rule, rule)
+          p.write_text(t,encoding='utf-8')
 
-          def replace(path, pairs):
-              p=Path(path); t=p.read_text(encoding='utf-8')
-              for a,b in pairs:
-                  if a not in t:
-                      print(f'WARN {path}: not found -> {a[:90]!r}')
-                  t=t.replace(a,b)
-              p.write_text(t,encoding='utf-8')
-
-          replace('index.html', [
-            ('<title>Segunda Sagrada · Ranking de Tênis</title>','<title>Segunda Sagrada · Simples</title>'),
-            ('<div class="kicker">Clube privado · Temporada 2026</div>','<div class="kicker">Segunda Sagrada · Temporada 2026</div>'),
-            ('<h1>Segunda Sagrada</h1>','<h1>Simples</h1>'),
-            ('>Participantes</a>','>Atletas</a>'),
-            ('<span>jogadores</span>','<span>atletas</span>'),
-            ('<label>Confrontos Pendentes</label>','<label>Confrontos pendentes</label>'),
-            ('<label>Games do Jogador A</label>','<label>Games do Atleta A</label>'),
-            ('<label>Games do Jogador B</label>','<label>Games do Atleta B</label>'),
-            ('<th>#</th>','<th>Posição</th>'),
-            ('<th>Jogador</th>','<th>Atleta</th>'),
-            ('<th>Saldo</th>','<th>Saldo de games</th>'),
-            ('<th>Participante</th>','<th>Atleta</th>'),
-            ('<div class="section-eyebrow">04 · Rodadas</div>\n                        <h2>Sugestão de jogos por quarta-feira</h2>','<div class="section-eyebrow">04 · Próximos jogos</div>\n                        <h2>Sugestões por disponibilidade</h2>'),
-            ('Sugestões automáticas considerando disponibilidade e priorizando quem tem menos jogos.','Sugestões automáticas considerando disponibilidade e priorizando quem tem menos jogos de Simples.'),
-            ('<div class="section-eyebrow">06 · Grupo</div>','<div class="section-eyebrow">07 · Atletas</div>'),
-            ('<h2>Participantes</h2>','<h2>Atletas</h2>'),
-            ('<label>Nome do jogador</label>','<label>Nome do atleta</label>'),
-            ('<div class="section-eyebrow">07 · Administração</div>','<div class="section-eyebrow">08 · Administração</div>'),
-            ('${state.players.length}/10 jogadores cadastrados','${state.players.length}/10 atletas cadastrados'),
-            ('Nenhum participante cadastrado ainda.','Nenhum atleta cadastrado ainda.'),
-            ('Cadastre 10 jogadores para iniciar','Cadastre 10 atletas para iniciar'),
-            ('Nenhum jogador cadastrado ainda.','Nenhum atleta cadastrado ainda.'),
-            ('Cadastre participantes para montar a tabela de disponibilidade.','Cadastre atletas para montar a tabela de disponibilidade.'),
-            ('Cadastre 10 jogadores para iniciar o torneio.','Cadastre 10 atletas para iniciar o torneio.'),
-            ('Aguardando jogadores','Aguardando atletas'),
-            ('apagar todos os jogadores, resultados, confrontos e disponibilidades','apagar todos os atletas, resultados, confrontos e disponibilidades')
-          ])
-
-          replace('master.html', [
-            ('<div class="kicker">Segunda Sagrada · Central da temporada 2026</div>','<div class="kicker">Segunda Sagrada · Temporada 2026</div>'),
-            ('<h1>Segunda Sagrada - Geral</h1>','<h1>Geral</h1>'),
-            ('>Participantes</a>','>Atletas</a>'),
-            ('<div class="eyebrow">04 · Atletas</div><h2>Participantes da temporada</h2>','<div class="eyebrow">04 · Atletas</div><h2>Atletas da temporada</h2>'),
-            ('Cadastro central dos 10 atletas.','Cadastro central dos 10 atletas da temporada.'),
-            ('<div class="footer">Segunda Sagrada · Geral</div>','<div class="footer">Segunda Sagrada · Temporada 2026 · Geral</div>')
-          ])
-
-          replace('duplas.html', [
-            ('Atletas e disponibilidade são herdados do Single.','Atletas e disponibilidade são compartilhados com o Simples.'),
-            ('Configuração do Single não encontrada.','Configuração do Simples não encontrada.'),
-            ('Cadastre os 10 atletas no Single','Cadastre os 10 atletas no Simples'),
-            ('disponibilidade das quartas já preenchida no Single','disponibilidade das quartas compartilhada com o Simples'),
-            ('Atletas e disponibilidade do Simples serão preservados.','Atletas e disponibilidade compartilhados com o Simples serão preservados.'),
-            ('<section class="grid" id="lancar"><div class="card"><h2>Lançar resultado</h2>','<section class="grid" id="lancar"><div class="card"><div class="section-eyebrow">01 · Operação</div><h2>Lançar resultado</h2>'),
-            ('<div class="card"><h2>Próximo confronto possível</h2>','<div class="card"><div class="section-eyebrow">02 · Próximos jogos</div><h2>Próximo confronto sugerido</h2>'),
-            ('<section class="card" id="ranking" style="margin-bottom:18px"><h2>Ranking individual · Duplas</h2>','<section class="card" id="ranking" style="margin-bottom:18px"><div class="section-eyebrow">03 · Ranking</div><h2>Ranking atualizado · Duplas</h2>'),
-            ('<div class="card" id="grade"><h2>Grade sorteada</h2>','<div class="card" id="grade"><div class="section-eyebrow">04 · Grade</div><h2>Grade sorteada</h2>'),
-            ('<div class="card" id="historico"><h2>Histórico</h2>','<div class="card" id="historico"><div class="section-eyebrow">05 · Memória</div><h2>Histórico de jogos</h2>'),
-            ('<section class="card" id="regras"><h2>Regras</h2>','<section class="card" id="regras"><div class="section-eyebrow">06 · Regra do jogo</div><h2>Sistema de pontuação utilizado</h2>'),
-            ('<section class="card" style="margin-top:16px"><h2>Administração</h2>','<section class="card" style="margin-top:16px"><div class="section-eyebrow">07 · Administração</div><h2>Administração</h2>'),
-            ('.court-motto{display:inline-grid;gap:4px;', '.section-eyebrow{color:var(--gold-soft);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:900;margin-bottom:6px}.court-motto{display:inline-grid;gap:4px;')
-          ])
+          p=Path('index.html')
+          t=p.read_text(encoding='utf-8').replace('Cada participante pode desmarcar a data em que não puder jogar.','Cada atleta pode desmarcar a data em que não puder jogar.')
+          p.write_text(t,encoding='utf-8')
           PY
-          git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html master.html duplas.html
-          git commit -m 'style: harmonize product identity across general simple doubles'
+          git add index.html duplas.html
+          git rm .github/workflows/harmonize-product-identity.yml
+          git commit -m 'chore: finalize product identity harmonization'
           git push
-# trigger
