@@ -1,0 +1,46 @@
+name: Sync Visual Identity
+on:
+  push:
+    paths: ['.github/workflows/sync-visual-identity.yml']
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Match Single palette and motto
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          motto='<div class="court-motto"><strong>La victoire appartient au plus opiniâtre.</strong><span>Victory belongs to the most tenacious</span></div>'
+          css='''\n.court-motto{display:inline-grid;gap:4px;margin:18px 0 4px;padding:14px 18px;border-left:2px solid rgba(217,184,120,.72);background:linear-gradient(90deg,rgba(217,184,120,.10),transparent)}\n.court-motto strong{font-family:"Playfair Display",Georgia,serif;font-size:clamp(18px,2vw,25px);letter-spacing:-.025em;color:#f4ead7}\n.court-motto span{color:rgba(244,234,215,.58);font-size:12px;text-transform:uppercase;letter-spacing:.14em;font-weight:900}\n'''
+          # Duplas: preserve all behavior, only visual identity + motto.
+          p=Path('duplas.html'); t=p.read_text()
+          t=t.replace('<title>Segunda Sagrada · Duplas</title><style>', '<title>Segunda Sagrada · Duplas</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"><style>')
+          t=t.replace(':root{--line:rgba(244,234,215,.16);--cream:#f4ead7;--muted:rgba(244,234,215,.65);--gold:#d9b878}', ':root{--line:rgba(244,234,215,.14);--cream:#f4ead7;--muted:rgba(244,234,215,.58);--gold:#d9b878;--clay:#9b4a2b;--clay-dark:#65301f;--clay-soft:#bf714a;--green:#1f5f3b;--green-deep:#123523;--green-soft:#2f7b50}')
+          t=t.replace('body{margin:0;background:linear-gradient(145deg,#17110d,#30180f 68%,#102419);color:var(--cream);font-family:Arial,sans-serif;min-height:100vh}', 'body{margin:0;background:radial-gradient(circle at 12% 8%,rgba(191,113,74,.26),transparent 28%),radial-gradient(circle at 86% 14%,rgba(31,95,59,.22),transparent 30%),radial-gradient(circle at 48% 112%,rgba(217,184,120,.10),transparent 40%),linear-gradient(145deg,#17110d 0%,#241611 38%,#30180f 68%,#102419 100%);color:var(--cream);font-family:Inter,Arial,sans-serif;min-height:100vh}')
+          t=t.replace('h1{font-size:clamp(42px,9vw,76px);margin:8px 0 6px;line-height:.95}', 'h1{font-family:"Playfair Display",Georgia,serif;font-size:clamp(42px,9vw,76px);margin:8px 0 6px;line-height:.95;letter-spacing:-.045em}')
+          t=t.replace('</style></head>', css+'</style></head>')
+          needle='<h1>Duplas</h1><p>20 partidas'
+          if motto not in t: t=t.replace('<h1>Duplas</h1><p>20 partidas','<h1>Duplas</h1>'+motto+'<p>20 partidas')
+          p.write_text(t)
+
+          # Master: exact Single palette/background/font family + motto.
+          p=Path('master.html'); t=p.read_text()
+          t=t.replace('<title>Segunda Sagrada · Master</title>\n<style>', '<title>Segunda Sagrada · Master</title>\n<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet>\n<style>')
+          t=t.replace(':root{--bg:#17110d;--panel:#241611;--cream:#f4ead7;--muted:rgba(244,234,215,.64);--faint:rgba(244,234,215,.36);--line:rgba(244,234,215,.15);--gold:#d9b878;--clay:#b45f3b;--green:#2f7b50;--green2:#173f2a;--shadow:0 24px 70px rgba(0,0,0,.32)}', ':root{--bg:#17110d;--panel:#241611;--cream:#f4ead7;--muted:rgba(244,234,215,.58);--faint:rgba(244,234,215,.34);--line:rgba(244,234,215,.14);--gold:#d9b878;--clay:#9b4a2b;--green:#1f5f3b;--green2:#123523;--shadow:0 28px 90px rgba(0,0,0,.38)}')
+          old='body{margin:0;min-height:100vh;color:var(--cream);font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 8% 0%,rgba(180,95,59,.24),transparent 30%),radial-gradient(circle at 90% 8%,rgba(47,123,80,.18),transparent 28%),linear-gradient(145deg,#17110d,#2b160f 60%,#102419)}'
+          new='body{margin:0;min-height:100vh;color:var(--cream);font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 12% 8%,rgba(191,113,74,.26),transparent 28%),radial-gradient(circle at 86% 14%,rgba(31,95,59,.22),transparent 30%),radial-gradient(circle at 48% 112%,rgba(217,184,120,.10),transparent 40%),linear-gradient(145deg,#17110d 0%,#241611 38%,#30180f 68%,#102419 100%)}'
+          t=t.replace(old,new).replace('.hero h1{font-family:Georgia,serif;', '.hero h1{font-family:"Playfair Display",Georgia,serif;').replace('.leader-name{font-family:Georgia,serif;', '.leader-name{font-family:"Playfair Display",Georgia,serif;').replace('.app-card h3{font-family:Georgia,serif;', '.app-card h3{font-family:"Playfair Display",Georgia,serif;')
+          t=t.replace('</style>',''+css+'</style>',1)
+          if motto not in t: t=t.replace('<h1>Master</h1>','<h1>Master</h1>'+motto,1)
+          p.write_text(t)
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add duplas.html master.html
+          git commit -m 'style: align master and doubles with single identity'
+          git push
