@@ -82,3 +82,4 @@ jobs:
           git add index.html master.html duplas.html
           git commit -m 'style: harmonize product identity across general simple doubles'
           git push
+# trigger
