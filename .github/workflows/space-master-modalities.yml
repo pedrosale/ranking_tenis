@@ -1,0 +1,29 @@
+name: Space Master Modalities
+on:
+  push:
+    paths: ['.github/workflows/space-master-modalities.yml']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('master.css'); t=p.read_text(encoding='utf-8')
+          t += '\n@media(max-width:980px){.hero-side{margin-top:18px}}\n'
+          p.write_text(t,encoding='utf-8')
+          p=Path('master.html'); t=p.read_text(encoding='utf-8')
+          t=re.sub(r'master\.css\?v=[^"\']+', 'master.css?v=20260824-modalities-space', t, count=1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.css master.html
+          git rm .github/workflows/space-master-modalities.yml
+          git commit -m 'style: add spacing before master modalities on mobile'
+          git push
