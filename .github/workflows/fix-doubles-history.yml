@@ -1,0 +1,30 @@
+name: Fix doubles history
+on:
+  push:
+    paths: ['.github/workflows/fix-doubles-history.yml']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('duplas.html')
+          t=p.read_text(encoding='utf-8')
+          old="history.innerHTML=(doubles.matches||[]).map(m=>`<div class=\"match\"><strong>${m.a.join(' + ')} x ${m.b.join(' + ')}</strong><small>${m.s1a===undefined?'Resultado legado':matchSummary(m)}</small></div>`).join('')||'<div class=\"status\">Nenhuma partida lançada.</div>'"
+          new="document.getElementById('history').innerHTML=(doubles.matches||[]).map(m=>`<div class=\"match\"><strong>${m.a.join(' + ')} x ${m.b.join(' + ')}</strong><small>${m.s1a===undefined?'Resultado legado':matchSummary(m)}</small><button class=\"danger delete-match-btn\" data-match-id=\"${m.id}\" style=\"margin-top:10px\">Excluir resultado</button></div>`).join('')||'<div class=\"status\">Nenhuma partida lançada.</div>';document.querySelectorAll('.delete-match-btn').forEach(btn=>btn.onclick=async()=>{const senha=prompt('Digite a senha de administrador:');if(senha!=='adminsagrada'){alert('Senha incorreta.');return}if(!confirm('Excluir este resultado de duplas?'))return;const id=btn.dataset.matchId;doubles.matches=(doubles.matches||[]).filter(m=>m.id!==id);single.doublesMatches=doubles.matches;try{await setDoc(singleRef,single);render();saveStatus.textContent='Resultado excluído com sucesso.'}catch(e){saveStatus.textContent='Erro ao excluir: '+e.message;alert('Não foi possível excluir o resultado.')}})"
+          if old not in t:
+              raise SystemExit('history render target not found')
+          t=t.replace(old,new,1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add duplas.html
+          git rm .github/workflows/fix-doubles-history.yml
+          git commit -m 'fix: render doubles history and allow deleting matches'
+          git push
