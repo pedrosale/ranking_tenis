@@ -1,0 +1,43 @@
+name: Microcopy Consistency Cleanup
+on:
+  push:
+    paths: ['.github/workflows/microcopy-consistency.yml']
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def rep(path, pairs):
+              p=Path(path); t=p.read_text(encoding='utf-8')
+              for a,b in pairs:
+                  t=t.replace(a,b)
+              p.write_text(t,encoding='utf-8')
+
+          rep('master.html', [
+            ('O limite é de 10 participantes.','O limite é de 10 atletas.'),
+            ('<div class="eyebrow">03 · Ranking geral</div>','<div class="eyebrow">03 · Ranking</div>')
+          ])
+
+          rep('index.html', [
+            ('<div class="section-eyebrow">02 · Centro competitivo</div>','<div class="section-eyebrow">02 · Ranking</div>')
+          ])
+
+          rep('duplas.html', [
+            ('20 partidas · 8 jogos por atleta · nenhuma parceria repetida.','20 jogos · 8 jogos por atleta · nenhuma parceria repetida.'),
+            ('<strong>20</strong><span>partidas</span>','<strong>20</strong><span>jogos</span>'),
+            ('<span>jogadas</span>','<span>realizados</span>')
+          ])
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html master.html duplas.html
+          git rm .github/workflows/microcopy-consistency.yml
+          git commit -m 'copy: align remaining product terminology'
+          git push
