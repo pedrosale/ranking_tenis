@@ -1,0 +1,30 @@
+name: Link Master CSS
+on:
+  push:
+    paths: ['.github/workflows/link-master-css.yml']
+permissions:
+  contents: write
+jobs:
+  link:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Link stylesheet
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          link='<link rel="stylesheet" href="./master.css?v=20260823-2204">'
+          if link not in t:
+              t=t.replace('<title>Segunda Sagrada · Master</title>', '<title>Segunda Sagrada · Master</title>\n'+link, 1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          grep -q 'master.css?v=20260823-2204' master.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'fix: load master stylesheet explicitly'
+          git push
