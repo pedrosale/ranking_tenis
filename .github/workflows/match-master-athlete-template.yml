@@ -1,0 +1,35 @@
+name: Match Master Athlete Template
+on:
+  push:
+    paths: ['.github/workflows/match-master-athlete-template.yml']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('master.html'); t=p.read_text(encoding='utf-8')
+          old='<section class="section card" id="participantes"><div class="head"><div><div class="eyebrow">04 · Atletas</div><h2>Atletas da temporada</h2></div><div class="note">Cadastro central dos 10 atletas da temporada.</div></div><div class="player-form"><input id="playerName" placeholder="Nome do atleta"><button id="addPlayerBtn">Adicionar atleta</button></div><div class="agenda-status" id="playersStatus">0/10 atletas cadastrados</div><div class="player-list" id="playersList"></div></section>'
+          new='<section class="section card athlete-template" id="participantes"><div class="head"><div><div class="eyebrow">04 · Atletas</div><h2>Atletas</h2></div></div><label class="athlete-label" for="playerName">Nome do atleta</label><input id="playerName" class="athlete-input" placeholder="Ex: Pedro"><button id="addPlayerBtn" class="athlete-add-btn">Adicionar atleta</button><div class="status athlete-status" id="playersStatus"></div><div class="players-list" id="playersList"></div></section>'
+          if old not in t: raise SystemExit('master athlete section not found')
+          t=t.replace(old,new,1)
+          t=t.replace("playersList.innerHTML=single.players.length?single.players.map(p=>`<span class=\"player-pill\">${p}</span>`).join(''):'<span class=\"note\">Nenhum atleta cadastrado.</span>'", "playersList.innerHTML=single.players.length?single.players.map(p=>`<div class=\"player-pill\">${p}</div>`).join(''):''",1)
+          t=re.sub(r'master\.css\?v=[^"\']+', 'master.css?v=20260824-athletes1', t, count=1)
+          p.write_text(t,encoding='utf-8')
+          p=Path('master.css'); t=p.read_text(encoding='utf-8')
+          t += '''\n.athlete-template .head{margin-bottom:16px}.athlete-label{display:block;margin:12px 0 7px;color:var(--cream-soft);font-size:12px;font-weight:800;letter-spacing:.04em}.athlete-input{width:100%;border-radius:14px;border:1px solid var(--line);padding:13px;background:rgba(0,0,0,.18);color:var(--cream);font:inherit;font-size:14px}.athlete-input::placeholder{color:rgba(244,234,215,.35)}.athlete-input:focus{outline:none;border-color:rgba(217,184,120,.48);box-shadow:0 0 0 4px rgba(217,184,120,.09)}.athlete-add-btn{width:100%;margin-top:14px;border:0;border-radius:14px;padding:13px;background:linear-gradient(135deg,var(--green-soft),var(--green-deep));color:#fff8ec;font:inherit;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 14px 30px rgba(0,0,0,.24)}.athlete-add-btn:hover{transform:translateY(-1px);box-shadow:0 18px 42px rgba(0,0,0,.32)}.athlete-status{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.55}.athlete-template .players-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:10px}.athlete-template .player-pill{border:1px solid var(--line);border-radius:18px;padding:13px;background:rgba(0,0,0,.14);color:var(--muted);font-size:12px;font-weight:800;text-align:center}\n'''
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html master.css
+          git rm .github/workflows/match-master-athlete-template.yml
+          git commit -m 'style: match master athlete registration to simple'
+          git push
+# trigger
