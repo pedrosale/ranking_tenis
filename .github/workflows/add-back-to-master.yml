@@ -1,0 +1,40 @@
+name: Add back to master navigation
+on:
+  push:
+    paths:
+      - '.github/workflows/add-back-to-master.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add navigation to Single and Doubles
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          t = p.read_text(encoding='utf-8')
+          needle = '<nav class="header-actions" aria-label="Navegação principal">'
+          if 'href="./master.html">← Voltar para Geral</a>' not in t:
+              t = t.replace(needle, needle + '\n                    <a class="nav-pill" href="./master.html">← Voltar para Geral</a>', 1)
+          p.write_text(t, encoding='utf-8')
+
+          p = Path('duplas.html')
+          t = p.read_text(encoding='utf-8')
+          if '.nav-pill{' not in t:
+              t = t.replace('.court-motto{', '.header-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.nav-pill{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);color:var(--cream-soft);text-decoration:none;font-size:13px;font-weight:700;background:rgba(255,248,236,.055)}.nav-pill:hover{border-color:rgba(217,184,120,.42);background:rgba(217,184,120,.10);color:var(--cream)}.court-motto{', 1)
+          marker = '<p>20 partidas · 8 jogos por atleta · nenhuma parceria repetida. Atletas e disponibilidade são herdados do Single.</p>'
+          if 'href="./master.html">← Voltar para Geral</a>' not in t:
+              t = t.replace(marker, marker + '<nav class="header-actions" aria-label="Navegação principal"><a class="nav-pill" href="./master.html">← Voltar para Geral</a></nav>', 1)
+          p.write_text(t, encoding='utf-8')
+          PY
+          grep -q 'href="./master.html">← Voltar para Geral</a>' index.html
+          grep -q 'href="./master.html">← Voltar para Geral</a>' duplas.html
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html duplas.html
+          git commit -m 'feat: add back to general navigation'
+          git push
