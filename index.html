@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#17110d">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Segunda Sagrada · Ranking de Tênis</title><link rel="preconnect" href="https://fonts.googleapis.com">
+<title>Segunda Sagrada · Simples</title><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"><style>
 :root {
@@ -897,8 +897,8 @@ td:nth-child(2) {
     <div class="club-shell">
         <header class="club-header">
             <div>
-                <div class="kicker">Clube privado · Temporada 2026</div>
-                <h1>Segunda Sagrada</h1>
+                <div class="kicker">Segunda Sagrada · Temporada 2026</div>
+                <h1>Simples</h1>
                 <div class="court-motto" aria-label="Frase inspirada em Roland Garros">
                     <strong>La victoire appartient au plus opiniâtre.</strong>
                     <span>Victory belongs to the most tenacious</span>
@@ -909,7 +909,7 @@ td:nth-child(2) {
                     <a class="nav-pill" href="#lancar">Lançar resultado</a>
                     <a class="nav-pill" href="#agenda">Agenda</a>
                     <a class="nav-pill" href="#historico">Histórico</a>
-                    <a class="nav-pill" href="#participantes">Participantes</a>
+                    <a class="nav-pill" href="#participantes">Atletas</a>
                 </nav>
             </div>
 
@@ -933,7 +933,7 @@ td:nth-child(2) {
             <div class="hero-panel-bottom">
                 <div class="mini-stat">
                     <strong id="miniPlayers">0/10</strong>
-                    <span>jogadores</span>
+                    <span>atletas</span>
                 </div>
                 <div class="mini-stat">
                     <strong id="miniPlayed">0</strong>
@@ -957,16 +957,16 @@ td:nth-child(2) {
                     </div>
                 </div>
 
-                <label>Confrontos Pendentes</label>
+                <label>Confrontos pendentes</label>
                 <select id="matchSelect"></select>
 
                 <div class="form-row">
                     <div>
-                        <label>Games do Jogador A</label>
+                        <label>Games do Atleta A</label>
                         <input id="scoreA" type="number" min="0" placeholder="0" />
                     </div>
                     <div>
-                        <label>Games do Jogador B</label>
+                        <label>Games do Atleta B</label>
                         <input id="scoreB" type="number" min="0" placeholder="0" />
                     </div>
                 </div>
@@ -978,11 +978,11 @@ td:nth-child(2) {
             <aside class="status-card">
                 <div>
                     <div class="next-title">Próximo confronto sugerido</div>
-                    <div class="next-match-large" id="nextMatchHero">Aguardando jogadores</div>
+                    <div class="next-match-large" id="nextMatchHero">Aguardando atletas</div>
                     <div class="next-match-date" id="nextMatchDate"></div>
                 </div>
                 <p class="section-note">
-                    Sugestões automáticas considerando disponibilidade e priorizando quem tem menos jogos.
+                    Sugestões automáticas considerando disponibilidade e priorizando quem tem menos jogos de Simples.
                 </p>
             </aside>
         </section>
@@ -999,14 +999,14 @@ td:nth-child(2) {
                 <table class="ranking-table">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Jogador</th>
+                            <th>Posição</th>
+                            <th>Atleta</th>
                             <th>Jogos</th>
                             <th>Vitórias</th>
                             <th>Derrotas</th>
                             <th>Games Vencidos</th>
                             <th>Games Sofridos</th>
-                            <th>Saldo</th>
+                            <th>Saldo de games</th>
                             <th>Pontos</th>
                         </tr>
                     </thead>
@@ -1037,12 +1037,12 @@ td:nth-child(2) {
             <section class="subtle-section">
                 <div class="section-head">
                     <div>
-                        <div class="section-eyebrow">04 · Rodadas</div>
-                        <h2>Sugestão de jogos por quarta-feira</h2>
+                        <div class="section-eyebrow">04 · Próximos jogos</div>
+                        <h2>Sugestões por disponibilidade</h2>
                     </div>
                 </div>
                 <div class="section-note">
-                    Sugestões automáticas considerando disponibilidade e priorizando quem tem menos jogos.
+                    Sugestões automáticas considerando disponibilidade e priorizando quem tem menos jogos de Simples.
                 </div>
                 <div class="history" id="suggestions"></div>
             </section>
@@ -1104,12 +1104,12 @@ td:nth-child(2) {
             <section class="subtle-section" id="participantes">
                 <div class="section-head">
                     <div>
-                        <div class="section-eyebrow">06 · Grupo</div>
-                        <h2>Participantes</h2>
+                        <div class="section-eyebrow">07 · Atletas</div>
+                        <h2>Atletas</h2>
                     </div>
                 </div>
 
-                <label>Nome do jogador</label>
+                <label>Nome do atleta</label>
                 <input id="playerName" placeholder="Ex: Pedro" />
                 <button onclick="addPlayer()">Adicionar jogador</button>
 
@@ -1120,12 +1120,12 @@ td:nth-child(2) {
             <section class="subtle-section admin-section">
                 <div class="section-head">
                     <div>
-                        <div class="section-eyebrow">07 · Administração</div>
+                        <div class="section-eyebrow">08 · Administração</div>
                         <h2>Administração</h2>
                     </div>
                 </div>
                 <div class="section-note">
-                    Use apenas se quiser apagar todos os jogadores, resultados, confrontos e disponibilidades.
+                    Use apenas se quiser apagar todos os atletas, resultados, confrontos e disponibilidades.
                 </div>
                 <button class="danger" onclick="resetAll()">Resetar tudo</button>
             </section>
@@ -1493,10 +1493,10 @@ function renderPlayers() {
     const list = document.getElementById("playersList");
     const status = document.getElementById("playersStatus");
 
-    status.innerHTML = `${state.players.length}/10 jogadores cadastrados`;
+    status.innerHTML = `${state.players.length}/10 atletas cadastrados`;
 
     if (!state.players.length) {
-        list.innerHTML = `<div class="status">Nenhum participante cadastrado ainda.</div>`;
+        list.innerHTML = `<div class="status">Nenhum atleta cadastrado ainda.</div>`;
         return;
     }
 
@@ -1512,7 +1512,7 @@ function renderMatchSelect() {
     const pending = state.schedule.filter(m => !playedIds.has(m.id));
 
     if (!state.schedule.length) {
-        select.innerHTML = `<option value="">Cadastre 10 jogadores para iniciar</option>`;
+        select.innerHTML = `<option value="">Cadastre 10 atletas para iniciar</option>`;
         return;
     }
 
@@ -1533,7 +1533,7 @@ function renderRanking() {
     if (!ranking.length) {
         body.innerHTML = `
             <tr>
-                <td colspan="9">Nenhum jogador cadastrado ainda.</td>
+                <td colspan="9">Nenhum atleta cadastrado ainda.</td>
             </tr>
         `;
         return;
@@ -1566,7 +1566,7 @@ function renderAvailability() {
 
     head.innerHTML = `
         <tr>
-            <th>Participante</th>
+            <th>Atleta</th>
             ${visibleWednesdays.map(date => `<th>${formatDateBR(date)}</th>`).join("")}
         </tr>
     `;
@@ -1575,7 +1575,7 @@ function renderAvailability() {
         body.innerHTML = `
             <tr>
                 <td colspan="${visibleWednesdays.length + 1}">
-                    Cadastre participantes para montar a tabela de disponibilidade.
+                    Cadastre atletas para montar a tabela de disponibilidade.
                 </td>
             </tr>
         `;
@@ -1628,7 +1628,7 @@ function renderStatus() {
     document.getElementById("matchStatus").innerHTML =
         state.players.length === 10
         ? `Jogos lançados: ${played}/45 · Pendentes: ${pending}`
-        : `Cadastre 10 jogadores para iniciar o torneio.`;
+        : `Cadastre 10 atletas para iniciar o torneio.`;
 
     document.getElementById("miniPlayers").innerHTML = `${state.players.length}/10`;
     document.getElementById("miniPlayed").innerHTML = `${played}`;
@@ -1659,7 +1659,7 @@ function renderHero() {
     const next = suggestMatchesByDate().find(item => item.match);
 
     if (!next) {
-        document.getElementById("nextMatchHero").innerHTML = "Aguardando jogadores";
+        document.getElementById("nextMatchHero").innerHTML = "Aguardando atletas";
         document.getElementById("nextMatchDate").innerHTML = "";
         return;
     }
