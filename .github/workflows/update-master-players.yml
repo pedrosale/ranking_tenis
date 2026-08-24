@@ -17,23 +17,18 @@ jobs:
           from pathlib import Path
           p=Path('master.html')
           t=p.read_text(encoding='utf-8')
-
           t=t.replace('.footer{color:var(--faint);font-size:11px;text-align:center;padding:20px 0 0}', '.player-form{display:grid;grid-template-columns:1fr auto;gap:10px}.player-form input{min-height:46px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.16);color:var(--cream);padding:0 14px;font:inherit}.player-form button{min-height:46px;border:0;border-radius:14px;padding:0 18px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff8ec;font-weight:900}.player-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.player-pill{padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:rgba(0,0,0,.13);font-size:12px}.footer{color:var(--faint);font-size:11px;text-align:center;padding:20px 0 0}')
-
           marker='''<section class="section card">\n<div class="head"><div><div class="eyebrow">04 · Agenda central</div><h2>Disponibilidade nas quartas-feiras</h2></div><div class="note">Esta é a mesma disponibilidade hoje usada pelo Simples e lida pelas Duplas. Alterações feitas aqui já alimentam os dois.</div></div>'''
           insert='''<section class="section card">\n<div class="head"><div><div class="eyebrow">04 · Atletas</div><h2>Participantes da temporada</h2></div><div class="note">Cadastro central dos 10 atletas. O mesmo grupo é usado automaticamente pelo Simples e pelas Duplas.</div></div>\n<div class="player-form"><input id="playerName" placeholder="Nome do jogador"><button id="addPlayerBtn">Adicionar jogador</button></div>\n<div class="agenda-status" id="playersStatus">0/10 jogadores cadastrados</div>\n<div class="player-list" id="playersList"></div>\n</section>\n\n<section class="section card">\n<div class="head"><div><div class="eyebrow">05 · Agenda central</div><h2>Disponibilidade nas quartas-feiras</h2></div><div class="note">Esta é a mesma disponibilidade hoje usada pelo Simples e lida pelas Duplas. Alterações feitas aqui já alimentam os dois.</div></div>'''
           if marker not in t: raise SystemExit('agenda marker not found')
           t=t.replace(marker,insert,1)
           t=t.replace('<div class="eyebrow">05 · Modalidades</div>','<div class="eyebrow">06 · Modalidades</div>',1)
-
           js_marker='''function renderRanking(){'''
           js_insert='''function renderPlayers(){\n  playersStatus.textContent=(single.players||[]).length+'/10 jogadores cadastrados';\n  playersList.innerHTML=(single.players||[]).length?(single.players||[]).map(p=>`<span class="player-pill">${p}</span>`).join(''):'<span class="note">Nenhum atleta cadastrado.</span>';\n}\nasync function addPlayer(){\n  const name=playerName.value.trim();\n  if(!name)return alert('Informe o nome do jogador.');\n  single.players=single.players||[]; single.availability=single.availability||{}; single.schedule=single.schedule||[]; single.matches=single.matches||[];\n  if(single.players.length>=10)return alert('O limite é de 10 participantes.');\n  if(single.players.includes(name))return alert('Este jogador já foi cadastrado.');\n  single.players.push(name); single.availability[name]={};\n  for(const date of wednesdays)single.availability[name][date]=true;\n  playerName.value=''; await setDoc(singleRef,single);\n}\naddPlayerBtn.addEventListener('click',addPlayer);\nplayerName.addEventListener('keydown',e=>{if(e.key==='Enter')addPlayer()});\n\nfunction renderRanking(){'''
           if js_marker not in t: raise SystemExit('js marker not found')
           t=t.replace(js_marker,js_insert,1)
-
           t=t.replace('renderRanking();renderAgenda();renderStats()', 'renderRanking();renderPlayers();renderAgenda();renderStats()')
           t=t.replace('renderRanking();renderAgenda();renderStats();', 'renderRanking();renderPlayers();renderAgenda();renderStats();')
-
           p.write_text(t,encoding='utf-8')
           PY
       - name: Verify
@@ -50,3 +45,4 @@ jobs:
           git add master.html
           git commit -m 'feat: add central player registration to master'
           git push
+# trigger 2
