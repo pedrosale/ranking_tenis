@@ -1,0 +1,57 @@
+name: New Scoring System
+on:
+  push:
+    paths: ['.github/workflows/new-scoring.yml']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          # Simples: 10/6 base + games won; 8x7 max remains enforced.
+          p=Path('index.html'); t=p.read_text(encoding='utf-8')
+          old='''        const isTieBreak = Math.min(match.scoreA, match.scoreB) === 7;\n        const winnerPoints = isTieBreak ? 2 : 3;\n        const loserPoints = isTieBreak ? 1 : 0;\n\n        if (match.scoreA > match.scoreB) {\n            A.vitorias++;\n            B.derrotas++;\n            A.pontos += winnerPoints;\n            B.pontos += loserPoints;\n        } else {\n            B.vitorias++;\n            A.derrotas++;\n            B.pontos += winnerPoints;\n            A.pontos += loserPoints;\n        }'''
+          new='''        if (match.scoreA > match.scoreB) {\n            A.vitorias++;\n            B.derrotas++;\n            A.pontos += 10 + match.scoreA;\n            B.pontos += 6 + match.scoreB;\n        } else {\n            B.vitorias++;\n            A.derrotas++;\n            B.pontos += 10 + match.scoreB;\n            A.pontos += 6 + match.scoreA;\n        }'''
+          if old not in t: raise SystemExit('single scoring block not found')
+          t=t.replace(old,new,1)
+          t=t.replace('Pontuação por resultado, com saldo de games como primeiro critério de desempate.','Cada game vencido vale ponto. Em empate na pontuação, o saldo de games é o primeiro critério de desempate.',1)
+          start=t.index('<div class="score-rules">', t.index('id="pontuacao"'))
+          end=t.index('</div>\n        </section>',start)+6
+          rules='''<div class="score-rules">\n                <div class="rule-card"><div class="rule-number">10+</div><div><strong>Vencedor</strong><span>Recebe 10 pontos de base + 1 ponto por game vencido. Como toda vitória termina em 8, o vencedor recebe 18 pontos.</span></div></div>\n                <div class="rule-card"><div class="rule-number">6+</div><div><strong>Perdedor</strong><span>Recebe 6 pontos de base + 1 ponto por game vencido. Ex.: em 8x6, a pontuação é 18 x 12.</span></div></div>\n                <div class="rule-card"><div class="rule-number">8</div><div><strong>Formato do placar</strong><span>Resultados válidos: 8x0 a 8x6 ou 8x7. Em 7x7, joga-se o tie-break e o placar final é 8x7. Não existe 9x7.</span></div></div>\n                <div class="rule-card"><div class="rule-number">≠</div><div><strong>Critérios de desempate</strong><span>Em empate de pontos: maior saldo de games; depois, maior número de vitórias e, por fim, ordem alfabética.</span></div></div>\n            </div>'''
+          t=t[:start]+rules+t[end:]
+          p.write_text(t,encoding='utf-8')
+
+          # Duplas: same principle per athlete. Games are regular-set games; match TB remains excluded from game totals/saldo.
+          p=Path('duplas.html'); t=p.read_text(encoding='utf-8')
+          old="const wp=m.decidedByTB?2:3,lp=m.decidedByTB?1:0,ga=+m.s1a + +m.s2a,gb=+m.s1b + +m.s2b;"
+          if old not in t: raise SystemExit('doubles scoring marker not found')
+          t=t.replace(old,"const ga=+m.s1a + +m.s2a,gb=+m.s1b + +m.s2b,wp=10+(m.winnerSide==='A'?ga:gb),lp=6+(m.winnerSide==='A'?gb:ga);",1)
+          oldrules='<div class="rules"><div class="rule"><b>Vitória 2×0</b><p>Dois sets vencidos sem match tie-break: cada atleta vencedor recebe 3 pontos; os perdedores, 0.</p></div><div class="rule"><b>1×1 + Match TB</b><p>Se cada dupla vencer um set, joga-se match tie-break até 10, com diferença mínima de 2. Vencedores recebem 2 pontos cada e perdedores 1.</p></div><div class="rule"><b>Desempate</b><p>Saldo de games dos sets, depois vitórias e ordem alfabética. Pontos do match tie-break não entram no saldo de games.</p></div></div>'
+          newrules='<div class="rules"><div class="rule"><b>Vencedores · 10 + games</b><p>Cada atleta da dupla vencedora recebe 10 pontos de base + 1 ponto por game vencido pela dupla nos sets.</p></div><div class="rule"><b>Perdedores · 6 + games</b><p>Cada atleta da dupla perdedora recebe 6 pontos de base + 1 ponto por game vencido pela dupla nos sets. O match tie-break decide a partida, mas seus pontos não contam como games.</p></div><div class="rule"><b>Desempate</b><p>Saldo de games dos sets, depois vitórias e ordem alfabética. Pontos do match tie-break não entram no saldo nem na pontuação por games.</p></div></div>'
+          if oldrules not in t: raise SystemExit('doubles rules not found')
+          t=t.replace(oldrules,newrules,1)
+          p.write_text(t,encoding='utf-8')
+
+          # Geral must calculate exactly the same points as the two source modalities.
+          p=Path('master.html'); t=p.read_text(encoding='utf-8')
+          old="const tb=Math.min(sa,sb)===7;if(sa>sb){A.v++;B.d++;A.singlePts+=tb?2:3;B.singlePts+=tb?1:0}else{B.v++;A.d++;B.singlePts+=tb?2:3;A.singlePts+=tb?1:0}"
+          new="if(sa>sb){A.v++;B.d++;A.singlePts+=10+sa;B.singlePts+=6+sb}else{B.v++;A.d++;B.singlePts+=10+sb;A.singlePts+=6+sa}"
+          if old not in t: raise SystemExit('master single scoring not found')
+          t=t.replace(old,new,1)
+          old="const win=m.winnerSide==='A'?m.a:m.b,lose=m.winnerSide==='A'?m.b:m.a,wp=m.decidedByTB?2:3,lp=m.decidedByTB?1:0,ga=+m.s1a + +m.s2a,gb=+m.s1b + +m.s2b;"
+          new="const win=m.winnerSide==='A'?m.a:m.b,lose=m.winnerSide==='A'?m.b:m.a,ga=+m.s1a + +m.s2a,gb=+m.s1b + +m.s2b,wp=10+(m.winnerSide==='A'?ga:gb),lp=6+(m.winnerSide==='A'?gb:ga);"
+          if old not in t: raise SystemExit('master doubles scoring not found')
+          t=t.replace(old,new,1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html duplas.html master.html
+          git rm .github/workflows/new-scoring.yml
+          git commit -m 'feat: adopt 10-6 plus games scoring'
+          git push
