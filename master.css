@@ -13,3 +13,5 @@
 @media(max-width:520px){.hero-apps{grid-template-columns:1fr}}
 
 @media(max-width:980px){.hero-side{margin-top:18px}}
+
+@media(max-width:980px){.hero-side{margin-top:18px}}
