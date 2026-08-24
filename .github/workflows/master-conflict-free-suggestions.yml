@@ -75,3 +75,4 @@ function renderSuggestions(){
           git add master.html
           git commit -m 'feat: avoid athlete conflicts in master suggestions'
           git push
+# trigger
