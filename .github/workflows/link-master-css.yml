@@ -28,3 +28,4 @@ jobs:
           git add master.html
           git commit -m 'fix: load master stylesheet explicitly'
           git push
+# trigger
