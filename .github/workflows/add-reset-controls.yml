@@ -61,3 +61,4 @@ jobs:
           git add duplas.html master.html
           git commit -m 'feat: add admin reset controls to doubles and master'
           git push
+# trigger
