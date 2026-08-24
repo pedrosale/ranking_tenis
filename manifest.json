@@ -2,7 +2,7 @@
   "name": "Segunda Sagrada",
   "short_name": "Sagrada",
   "description": "Central oficial do torneio Segunda Sagrada.",
-  "start_url": "./master.html",
+  "start_url": "./geral-preview.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
