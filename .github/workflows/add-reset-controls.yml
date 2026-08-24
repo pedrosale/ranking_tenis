@@ -1,0 +1,63 @@
+name: Add Reset Controls
+on:
+  push:
+    paths:
+      - '.github/workflows/add-reset-controls.yml'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add reset controls
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          # ---- Duplas ----
+          p=Path('duplas.html')
+          t=p.read_text(encoding='utf-8')
+          if 'id="resetDoublesBtn"' not in t:
+              t=t.replace('.rule b{color:var(--gold)}', '.rule b{color:var(--gold)}.danger{background:linear-gradient(135deg,#8b2f2f,#4c1717)!important}.admin-note{color:var(--muted);font-size:13px;line-height:1.5;margin-top:8px}')
+              marker='</div></section></div><script type="module">'
+              insert='</div></section><section class="card" style="margin-top:16px"><h2>Administração</h2><p class="admin-note">Use apenas para apagar todos os resultados da campanha de duplas. Atletas e disponibilidade do Simples serão preservados.</p><button class="danger" id="resetDoublesBtn">Resetar Duplas</button></section></div><script type="module">'
+              if marker not in t: raise SystemExit('duplas html marker not found')
+              t=t.replace(marker,insert,1)
+              js_marker="try{const cfg=await loadFirebaseConfig()"
+              js_insert="async function resetDoubles(){const senha=prompt('Digite a senha de administrador:');if(senha!=='adminsagrada'){alert('Senha incorreta.');return}if(!confirm('Tem certeza que deseja apagar todos os resultados de duplas?'))return;doubles={matches:[]};await setDoc(doublesRef,doubles);alert('Resultados de duplas resetados com sucesso.')}document.getElementById('resetDoublesBtn').addEventListener('click',resetDoubles);try{const cfg=await loadFirebaseConfig()"
+              if js_marker not in t: raise SystemExit('duplas js marker not found')
+              t=t.replace(js_marker,js_insert,1)
+              p.write_text(t,encoding='utf-8')
+
+          # ---- Master ----
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          if 'id="resetSeasonBtn"' not in t:
+              t=t.replace('.footer{color:var(--faint);font-size:11px;text-align:center;padding:20px 0 0}', '.admin-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.danger-btn{min-height:48px;border:0;border-radius:14px;padding:0 16px;color:#fff8ec;font-weight:900;background:linear-gradient(135deg,#8b2f2f,#4c1717);cursor:pointer}.danger-btn.soft{background:linear-gradient(135deg,#80502f,#4f2f1b)}.footer{color:var(--faint);font-size:11px;text-align:center;padding:20px 0 0}')
+              t=t.replace('@media(max-width:850px){.hero-stats{grid-template-columns:1fr 1fr}.leader-grid,.suggest-grid,.apps{grid-template-columns:1fr}', '@media(max-width:850px){.hero-stats{grid-template-columns:1fr 1fr}.leader-grid,.suggest-grid,.apps,.admin-actions{grid-template-columns:1fr}')
+              marker='<section class="section card">\n<div class="head"><div><div class="eyebrow">07 · Modalidades</div><h2>Entrar em quadra</h2></div>'
+              insert='<section class="section card">\n<div class="head"><div><div class="eyebrow">07 · Administração</div><h2>Reset da temporada</h2></div><div class="note">Ações protegidas pela mesma senha administrativa do Simples.</div></div>\n<div class="admin-actions"><button class="danger-btn soft" id="resetSingleResultsBtn">Resetar resultados de Simples</button><button class="danger-btn soft" id="resetDoublesResultsBtn">Resetar resultados de Duplas</button><button class="danger-btn" id="resetSeasonBtn">Resetar temporada inteira</button></div>\n</section>\n\n<section class="section card">\n<div class="head"><div><div class="eyebrow">08 · Modalidades</div><h2>Entrar em quadra</h2></div>'
+              if marker not in t: raise SystemExit('master modalities marker not found')
+              t=t.replace(marker,insert,1)
+              t=t.replace('let single={players:[],matches:[],availability:{}},doubles={matches:[]},singleRef;', 'let single={players:[],matches:[],availability:{}},doubles={matches:[]},singleRef,doublesRef;')
+              t=t.replace("const doublesRef=doc(db,'tennisDoubles','main');", "doublesRef=doc(db,'tennisDoubles','main');")
+              js_marker='function render(){renderRanking();renderPlayers();renderAgenda();renderSuggestions()}'
+              js_insert="async function adminAuth(){const senha=prompt('Digite a senha de administrador:');if(senha!=='adminsagrada'){alert('Senha incorreta.');return false}return true}async function resetSingleResults(){if(!await adminAuth())return;if(!confirm('Apagar todos os resultados de Simples? Atletas e agenda serão preservados.'))return;single.matches=[];await setDoc(singleRef,single);alert('Resultados de Simples resetados.')}async function resetDoublesResults(){if(!await adminAuth())return;if(!confirm('Apagar todos os resultados de Duplas?'))return;doubles={matches:[]};await setDoc(doublesRef,doubles);alert('Resultados de Duplas resetados.')}async function resetSeason(){if(!await adminAuth())return;if(!confirm('ATENÇÃO: isso apagará atletas, agenda e resultados de Simples e Duplas. Deseja continuar?'))return;single={players:[],schedule:[],matches:[],availability:{}};doubles={matches:[]};await Promise.all([setDoc(singleRef,single),setDoc(doublesRef,doubles)]);alert('Temporada inteira resetada com sucesso.')}document.getElementById('resetSingleResultsBtn').addEventListener('click',resetSingleResults);document.getElementById('resetDoublesResultsBtn').addEventListener('click',resetDoublesResults);document.getElementById('resetSeasonBtn').addEventListener('click',resetSeason);function render(){renderRanking();renderPlayers();renderAgenda();renderSuggestions()}"
+              if js_marker not in t: raise SystemExit('master render marker not found')
+              t=t.replace(js_marker,js_insert,1)
+              p.write_text(t,encoding='utf-8')
+          PY
+      - name: Verify
+        run: |
+          grep -q 'resetDoublesBtn' duplas.html
+          grep -q 'resetSeasonBtn' master.html
+          grep -q 'resetSingleResultsBtn' master.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add duplas.html master.html
+          git commit -m 'feat: add admin reset controls to doubles and master'
+          git push
