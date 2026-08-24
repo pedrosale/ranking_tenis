@@ -1,0 +1,24 @@
+name: Rename Master Heading
+on:
+  push:
+    paths: ['.github/workflows/rename-master-heading.yml']
+permissions:
+  contents: write
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          t=t.replace('<h1>Master</h1>', '<h1>Segunda Sagrada - Geral</h1>', 1)
+          p.write_text(t, encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'copy: rename Master to Segunda Sagrada Geral'
+          git push
