@@ -55,7 +55,7 @@
 </section>
 
 <section class="section card">
-  <div class="head"><div><div class="eyebrow">06 · Próximos jogos</div><h2>Sugestões por disponibilidade</h2></div><div class="note">Respeita disponibilidade, prioriza quem tem menos jogos na respectiva modalidade e nunca repete atleta entre Simples e Duplas na mesma data.</div></div>
+  <div class="head"><div><div class="eyebrow">06 · Próximos jogos</div><h2>Sugestões por disponibilidade</h2></div><div class="note">Respeita disponibilidade, prioriza sempre quem tem menos jogos no total (Simples + Duplas) e nunca repete atleta entre Simples e Duplas na mesma data.</div></div>
   <div class="suggest-grid">
     <div class="app-card"><div class="eyebrow">Simples</div><h3>Próximos confrontos</h3><div class="suggest-list" id="singleSuggestions"></div></div>
     <div class="app-card"><div class="eyebrow">Duplas</div><h3>Próximos confrontos</h3><div class="suggest-list" id="doubleSuggestions"></div></div>
@@ -86,17 +86,26 @@ function combined(){const t={};for(const p of single.players)t[p]={player:p,j:0,
 function getBalancedSuggestions(limit=5){
   const playedS=new Set(single.matches.map(m=>m.id)),playedD=new Set(doubles.matches.map(m=>m.id));
   let pendS=single.schedule.filter(m=>!playedS.has(m.id)),pendD=doublesSchedule().filter(m=>!playedD.has(m.id));
-  const sc={},dc={};for(const p of single.players){sc[p]=0;dc[p]=0}for(const m of single.matches){if(m.playerA in sc)sc[m.playerA]++;if(m.playerB in sc)sc[m.playerB]++}for(const m of doubles.matches){if(Array.isArray(m.a)&&Array.isArray(m.b))for(const p of [...m.a,...m.b])if(p in dc)dc[p]++}
-  const sScore=m=>(sc[m.playerA]||0)+(sc[m.playerB]||0),dScore=m=>[...m.a,...m.b].reduce((z,p)=>z+(dc[p]||0),0);
+  const totalGames={};for(const p of single.players)totalGames[p]=0;
+  for(const m of single.matches){if(m.playerA in totalGames)totalGames[m.playerA]++;if(m.playerB in totalGames)totalGames[m.playerB]++}
+  for(const m of doubles.matches){if(Array.isArray(m.a)&&Array.isArray(m.b))for(const p of [...m.a,...m.b])if(p in totalGames)totalGames[p]++}
+  const sScore=m=>(totalGames[m.playerA]||0)+(totalGames[m.playerB]||0),dScore=m=>[...m.a,...m.b].reduce((z,p)=>z+(totalGames[p]||0),0);
   const singles=[],duplas=[];
   for(const date of visibleDates()){
     const ss=pendS.filter(m=>available(m.playerA,date)&&available(m.playerB,date)).sort((a,b)=>sScore(a)-sScore(b));
     const dd=pendD.filter(m=>[...m.a,...m.b].every(p=>available(p,date))).sort((a,b)=>dScore(a)-dScore(b));
     let best=null;
-    for(const d of [null,...dd])for(const s of [null,...ss]){if(!d&&!s)continue;const dp=d?[...d.a,...d.b]:[],sp=s?[s.playerA,s.playerB]:[];if(d&&s&&sp.some(p=>dp.includes(p)))continue;const games=(d?1:0)+(s?1:0),fair=(d?dScore(d):0)+(s?sScore(s):0);const cand={d,s,games,fair};if(!best||cand.games>best.games||cand.games===best.games&&cand.fair<best.fair)best=cand}
+    for(const d of [null,...dd])for(const s of [null,...ss]){
+      if(!d&&!s)continue;
+      const dp=d?[...d.a,...d.b]:[],sp=s?[s.playerA,s.playerB]:[];
+      if(d&&s&&sp.some(p=>dp.includes(p)))continue;
+      const games=(d?1:0)+(s?1:0),fair=(d?dScore(d):0)+(s?sScore(s):0);
+      const cand={d,s,games,fair};
+      if(!best||cand.games>best.games||cand.games===best.games&&cand.fair<best.fair)best=cand;
+    }
     if(!best)continue;
-    if(best.d&&duplas.length<limit){duplas.push({date,label:best.d.a.join(' + ')+' x '+best.d.b.join(' + ')});pendD=pendD.filter(x=>x.id!==best.d.id);for(const p of [...best.d.a,...best.d.b])dc[p]++}
-    if(best.s&&singles.length<limit){singles.push({date,label:best.s.playerA+' x '+best.s.playerB});pendS=pendS.filter(x=>x.id!==best.s.id);sc[best.s.playerA]++;sc[best.s.playerB]++}
+    if(best.d&&duplas.length<limit){duplas.push({date,label:best.d.a.join(' + ')+' x '+best.d.b.join(' + ')});pendD=pendD.filter(x=>x.id!==best.d.id);for(const p of [...best.d.a,...best.d.b])totalGames[p]++}
+    if(best.s&&singles.length<limit){singles.push({date,label:best.s.playerA+' x '+best.s.playerB});pendS=pendS.filter(x=>x.id!==best.s.id);totalGames[best.s.playerA]++;totalGames[best.s.playerB]++}
     if(singles.length>=limit&&duplas.length>=limit)break;
   }
   return{singles,duplas};
