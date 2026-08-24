@@ -1,0 +1,84 @@
+name: Fix Master Suggestions V2
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-master-suggestions-v2.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Harden master suggestions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+
+          start=t.index('function getSingleSuggestions(')
+          end=t.index('\nfunction renderPlayers(){', start)
+          replacement=r'''function effectiveSingleSchedule(){
+  if(Array.isArray(single.schedule)&&single.schedule.length)return single.schedule;
+  const players=single.players||[];
+  const schedule=[];
+  for(let i=0;i<players.length;i++)for(let j=i+1;j<players.length;j++)schedule.push({id:players[i]+'__vs__'+players[j],playerA:players[i],playerB:players[j]});
+  return schedule;
+}
+function getSingleSuggestions(limit=5){
+  const played=new Set((single.matches||[]).map(m=>m.id));
+  let pending=effectiveSingleSchedule().filter(m=>!played.has(m.id));
+  const count={};
+  (single.players||[]).forEach(p=>count[p]=(single.matches||[]).filter(m=>m.playerA===p||m.playerB===p).length);
+  const out=[];
+  for(const date of visibleDates()){
+    const possible=pending.filter(m=>available(m.playerA,date)&&available(m.playerB,date)).sort((a,b)=>((count[a.playerA]||0)+(count[a.playerB]||0))-((count[b.playerA]||0)+(count[b.playerB]||0)));
+    const m=possible[0];
+    if(!m)continue;
+    out.push({date,label:m.playerA+' x '+m.playerB});
+    pending=pending.filter(x=>x.id!==m.id);
+    count[m.playerA]=(count[m.playerA]||0)+1;count[m.playerB]=(count[m.playerB]||0)+1;
+    if(out.length>=limit)break;
+  }
+  return out;
+}
+function doublesSchedule(){return (single.players||[]).length===10?DOUBLES_TEMPLATE.map((x,i)=>({id:'D'+(i+1),a:x[0].map(k=>single.players[k]),b:x[1].map(k=>single.players[k])})):[]}
+function getDoubleSuggestions(limit=5){
+  const played=new Set((doubles.matches||[]).map(m=>m.id));
+  let pending=doublesSchedule().filter(m=>!played.has(m.id));
+  const out=[];
+  for(const date of visibleDates()){
+    const m=pending.find(x=>[...x.a,...x.b].every(p=>available(p,date)));
+    if(!m)continue;
+    out.push({date,label:m.a.join(' + ')+' x '+m.b.join(' + ')});
+    pending=pending.filter(x=>x.id!==m.id);
+    if(out.length>=limit)break;
+  }
+  return out;
+}
+function renderSuggestions(){
+  const singleBox=document.getElementById('singleSuggestions');
+  const doubleBox=document.getElementById('doubleSuggestions');
+  if(!singleBox||!doubleBox)return;
+  const render=(arr,empty)=>arr.length?arr.map(x=>`<div class="suggest-item"><strong>${x.label}</strong><small>${fmt(x.date)}</small></div>`).join(''):`<div class="note">${empty}</div>`;
+  try{
+    if((single.players||[]).length<2){singleBox.innerHTML='<div class="note">Aguardando atletas.</div>'}else{singleBox.innerHTML=render(getSingleSuggestions(),'Nenhum confronto de simples possível com a disponibilidade atual.')}
+  }catch(e){singleBox.innerHTML='<div class="note">Não foi possível calcular as sugestões de simples.</div>';console.error(e)}
+  try{
+    if((single.players||[]).length!==10){doubleBox.innerHTML='<div class="note">Aguardando os 10 atletas.</div>'}else{doubleBox.innerHTML=render(getDoubleSuggestions(),'Nenhum confronto de duplas possível com a disponibilidade atual.')}
+  }catch(e){doubleBox.innerHTML='<div class="note">Não foi possível calcular as sugestões de duplas.</div>';console.error(e)}
+}
+'''
+          t=t[:start]+replacement+t[end:]
+          p.write_text(t,encoding='utf-8')
+          PY
+          grep -q 'effectiveSingleSchedule' master.html
+          grep -q "document.getElementById('singleSuggestions')" master.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'fix: make master match suggestions robust'
+          git push
