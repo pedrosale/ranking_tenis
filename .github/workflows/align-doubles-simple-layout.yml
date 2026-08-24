@@ -1,0 +1,33 @@
+name: Align doubles header with singles
+on:
+  push:
+    paths: ['.github/workflows/align-doubles-simple-layout.yml']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('duplas.html'); t=p.read_text(encoding='utf-8')
+          # Match Singles spacing/brightness and add its competitive-status panel pattern.
+          t=t.replace('.hero{padding:clamp(24px,4vw,44px);margin-bottom:18px;', '.hero{padding:clamp(24px,4vw,44px);margin-bottom:18px;')
+          insert='''.hero-panel{margin-top:24px;display:grid;grid-template-rows:auto 1fr auto;min-height:290px;border:1px solid var(--line);border-radius:30px;padding:22px;background:radial-gradient(circle at 85% 18%,rgba(63,121,184,.24),transparent 38%),linear-gradient(160deg,rgba(255,248,236,.09),rgba(255,248,236,.025));box-shadow:var(--shadow-soft)}.hero-panel-top{display:flex;justify-content:space-between;gap:16px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.14em;font-weight:800}.champion-preview{align-self:center;padding:22px 0}.champion-label{color:var(--muted);font-size:13px;margin-bottom:8px}.champion-name{font-family:"Playfair Display",Georgia,serif;font-size:clamp(34px,4.6vw,56px);line-height:.95;letter-spacing:-.04em}.champion-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.stat-chip{border-radius:999px;border:1px solid var(--line);background:rgba(0,0,0,.14);padding:8px 10px;color:var(--cream-soft);font-size:12px;font-weight:700}.hero-panel-bottom{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mini-stat{border:1px solid var(--line);border-radius:18px;padding:12px;background:rgba(0,0,0,.12)}.mini-stat strong{display:block;font-size:22px;line-height:1;color:var(--cream)}.mini-stat span{display:block;margin-top:6px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}'''
+          t=t.replace('@media(max-width:800px){',insert+'@media(max-width:800px){',1)
+          old='<div class="stats"><div class="stat"><strong id="athletesCount">0/10</strong><span>atletas</span></div><div class="stat"><strong>20</strong><span>jogos</span></div><div class="stat"><strong id="playedCount">0</strong><span>realizados</span></div><div class="stat"><strong id="pendingCount">20</strong><span>pendentes</span></div></div>'
+          new='''<div class="hero-panel"><div class="hero-panel-top"><span>Status competitivo</span><span>2026</span></div><div class="champion-preview"><div class="champion-label">Líder atual</div><div class="champion-name" id="leaderName">—</div><div class="champion-meta"><span class="stat-chip" id="leaderPoints">0 pontos</span><span class="stat-chip" id="leaderGames">0 jogos</span><span class="stat-chip" id="leaderBalance">saldo 0</span></div></div><div class="hero-panel-bottom"><div class="mini-stat"><strong id="athletesCount">0/10</strong><span>atletas</span></div><div class="mini-stat"><strong id="playedCount">0</strong><span>jogos</span></div><div class="mini-stat"><strong id="pendingCount">20</strong><span>pendentes</span></div></div></div>'''
+          assert old in t
+          t=t.replace(old,new,1)
+          needle="document.getElementById('rankingBody').innerHTML=rows.map((r,i)=>`<tr><td>${i+1}</td><td>${displayName(r.name)}</td><td>${r.played}</td><td>${r.wins}</td><td>${r.losses}</td><td>${r.gf}</td><td>${r.ga}</td><td>${r.balance}</td><td>${r.points}</td></tr>`).join('');"
+          add=needle+"const leader=rows[0];document.getElementById('leaderName').textContent=leader?displayName(leader.name):'—';document.getElementById('leaderPoints').textContent=`${leader?.points||0} pontos`;document.getElementById('leaderGames').textContent=`${leader?.played||0} jogos`;document.getElementById('leaderBalance').textContent=`saldo ${leader?.balance||0}`;"
+          assert needle in t
+          t=t.replace(needle,add,1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'; git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add duplas.html; git rm .github/workflows/align-doubles-simple-layout.yml
+          git commit -m 'style: align doubles status layout with singles'; git push
