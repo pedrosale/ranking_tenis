@@ -10,48 +10,25 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
-  .preview-app{padding-bottom:0;overflow:hidden}
-  .preview-kicker{display:flex;align-items:center;justify-content:center;gap:10px;margin:18px 14px 8px;color:var(--gold-soft);font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}
-  .preview-kicker:before{content:"";width:8px;height:8px;flex:0 0 8px;border-radius:999px;background:#d9b878;box-shadow:0 0 0 6px rgba(217,184,120,.14);animation:generalPulse 1.25s ease-in-out infinite;transform-origin:center;will-change:transform,opacity,box-shadow}
-  @keyframes generalPulse{0%,100%{transform:scale(.82);box-shadow:0 0 0 4px rgba(217,184,120,.10);opacity:.55}50%{transform:scale(1.28);box-shadow:0 0 0 9px rgba(217,184,120,.08),0 0 18px rgba(217,184,120,.65);opacity:1}}
-  .court-portal{position:relative;margin:clamp(8px,2vw,20px) clamp(14px,2.4vw,28px) 0;border-radius:30px;overflow:hidden;border:1px solid rgba(217,184,120,.28);background:#080705;box-shadow:0 22px 60px rgba(0,0,0,.32)}
-  .court-crop{position:relative;overflow:hidden;width:100%}
-  .court-art{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
-  .court-link{position:absolute;z-index:5;top:14%;bottom:2%;display:block;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-  .court-link.single{left:0;width:50%}.court-link.doubles{right:0;width:50%}
-  .court-link:focus-visible{outline:3px solid var(--gold);outline-offset:-5px}
-  .court-transition{height:70px;margin-top:-34px;position:relative;z-index:6;pointer-events:none;background:linear-gradient(180deg,rgba(23,17,13,0),rgba(23,17,13,.68) 50%,#17110d 100%)}
-  .master-frame{display:block;width:100%;border:0;background:transparent;min-height:3200px;overflow:hidden}
-  .preview-note{color:var(--faint);font-size:10px;text-align:center;padding:8px 12px 18px;letter-spacing:.09em;text-transform:uppercase}
-  @media(max-width:520px){.preview-kicker{margin-top:12px}.court-portal{margin:7px 7px 0;border-radius:24px}.court-transition{height:54px;margin-top:-28px}.master-frame{min-height:4200px}}
+.preview-app{padding-bottom:0;overflow:hidden;background:#17110d}
+.preview-kicker{display:flex;align-items:center;justify-content:center;gap:10px;margin:18px 14px 8px;color:var(--gold-soft);font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}
+.preview-kicker:before{content:"";width:8px;height:8px;flex:0 0 8px;border-radius:999px;background:#d9b878;box-shadow:0 0 0 6px rgba(217,184,120,.14);animation:generalPulse 1.25s ease-in-out infinite;transform-origin:center}
+@keyframes generalPulse{0%,100%{transform:scale(.82);box-shadow:0 0 0 4px rgba(217,184,120,.10);opacity:.55}50%{transform:scale(1.28);box-shadow:0 0 0 9px rgba(217,184,120,.08),0 0 18px rgba(217,184,120,.65);opacity:1}}
+.court-portal{position:relative;margin:clamp(8px,2vw,20px) clamp(14px,2.4vw,28px) 0;border-radius:30px;overflow:hidden;border:1px solid rgba(217,184,120,.24);background:#17110d;box-shadow:0 22px 60px rgba(0,0,0,.22);isolation:isolate}
+.court-crop{position:relative;overflow:hidden;width:100%;background:#17110d}
+.court-art{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;mix-blend-mode:screen;opacity:.92;filter:contrast(1.08) saturate(.96) brightness(.92)}
+.court-crop:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(23,17,13,.02) 0%,rgba(23,17,13,0) 65%,rgba(23,17,13,.32) 92%,#17110d 100%);mix-blend-mode:multiply}
+.court-link{position:absolute;z-index:5;top:14%;bottom:2%;display:block;-webkit-tap-highlight-color:transparent;touch-action:manipulation}.court-link.single{left:0;width:50%}.court-link.doubles{right:0;width:50%}.court-link:focus-visible{outline:3px solid var(--gold);outline-offset:-5px}
+.court-transition{height:64px;margin-top:-34px;position:relative;z-index:6;pointer-events:none;background:linear-gradient(180deg,rgba(23,17,13,0),rgba(23,17,13,.78) 54%,#17110d 100%)}
+.master-frame{display:block;width:100%;border:0;background:transparent;min-height:3200px;overflow:hidden}.preview-note{color:var(--faint);font-size:10px;text-align:center;padding:8px 12px 18px;letter-spacing:.09em;text-transform:uppercase}
+@media(max-width:520px){.preview-kicker{margin-top:12px}.court-portal{margin:7px 7px 0;border-radius:24px}.court-transition{height:52px;margin-top:-28px}.master-frame{min-height:4200px}}
 </style>
 </head>
-<body>
-<div class="app preview-app">
-  <div class="preview-kicker">Segunda Sagrada · Temporada 2026</div>
-  <section class="court-portal" aria-label="Escolha a modalidade">
-    <div class="court-crop" id="courtCrop">
-      <img id="courtArt" class="court-art" alt="Segunda Sagrada — Simples e Duplas">
-      <a class="court-link single" href="./index.html" aria-label="Entrar no Simples"></a>
-      <a class="court-link doubles" href="./duplas.html" aria-label="Entrar no Duplas"></a>
-    </div>
-  </section>
-  <div class="court-transition"></div>
-  <iframe id="masterFrame" class="master-frame" src="./master.html?v=preview11" title="Geral atual" scrolling="no"></iframe>
-  <div class="preview-note">Preview temporário · Geral oficial inalterado</div>
-</div>
+<body><div class="app preview-app">
+<div class="preview-kicker">Segunda Sagrada · Temporada 2026</div>
+<section class="court-portal" aria-label="Escolha a modalidade"><div class="court-crop" id="courtCrop"><img id="courtArt" class="court-art" alt="Segunda Sagrada — Simples e Duplas"><a class="court-link single" href="./index.html" aria-label="Entrar no Simples"></a><a class="court-link doubles" href="./duplas.html" aria-label="Entrar no Duplas"></a></div></section>
+<div class="court-transition"></div><iframe id="masterFrame" class="master-frame" src="./master.html?v=preview12" title="Geral atual" scrolling="no"></iframe><div class="preview-note">Preview temporário · Geral oficial inalterado</div></div>
 <script>
-const art=document.getElementById('courtArt');const crop=document.getElementById('courtCrop');
-art.onload=()=>{const fit=()=>{crop.style.height=(art.getBoundingClientRect().width*0.765)+'px'};fit();addEventListener('resize',fit)};
-art.src='https://wnlqmlhmbiboedxhquvf.supabase.co/storage/v1/object/public/assets/segunda-sagrada-geral.png?v=1';
-const frame=document.getElementById('masterFrame');
-frame.onload=()=>{try{const d=frame.contentDocument;const style=d.createElement('style');style.textContent=`
-html,body{background:transparent!important;overflow:hidden!important}body:before,body:after{display:none!important}
-.app{width:100%!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;backdrop-filter:none!important;padding-bottom:0!important}
-.kicker,.hero>h1,.hero-modalities{display:none!important}
-.hero{padding-top:10px!important;margin:0!important;border-top:0!important;background:transparent!important}.hero:after{display:none!important}.hero-side{margin-top:6px!important}
-.header-actions .nav-pill[href="#modalidades"]{display:none!important}
-`;d.head.appendChild(style);const fit=()=>{frame.style.height=Math.max(d.documentElement.scrollHeight,d.body.scrollHeight)+'px'};fit();new ResizeObserver(fit).observe(d.body)}catch(e){console.error(e)}};
-</script>
-</body>
-</html>
+const art=document.getElementById('courtArt'),crop=document.getElementById('courtCrop');art.onload=()=>{const fit=()=>crop.style.height=(art.getBoundingClientRect().width*.765)+'px';fit();addEventListener('resize',fit)};art.src='https://wnlqmlhmbiboedxhquvf.supabase.co/storage/v1/object/public/assets/segunda-sagrada-geral.png?v=1';
+const frame=document.getElementById('masterFrame');frame.onload=()=>{try{const d=frame.contentDocument,style=d.createElement('style');style.textContent=`html,body{background:transparent!important;overflow:hidden!important}body:before,body:after{display:none!important}.app{width:100%!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;backdrop-filter:none!important;padding-bottom:0!important}.kicker,.hero>h1,.hero-modalities{display:none!important}.hero{padding-top:10px!important;margin:0!important;border-top:0!important;background:transparent!important}.hero:after{display:none!important}.hero-side{margin-top:6px!important}.header-actions .nav-pill[href="#modalidades"]{display:none!important}.court-motto strong{font-size:0!important}.court-motto strong:after{content:'Visão Geral';font-size:clamp(24px,4vw,36px)!important}.court-motto span{display:none!important}`;d.head.appendChild(style);const fit=()=>frame.style.height=Math.max(d.documentElement.scrollHeight,d.body.scrollHeight)+'px';fit();new ResizeObserver(fit).observe(d.body)}catch(e){console.error(e)}};
+</script></body></html>
