@@ -1,1 +1,71 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080705"><title>Segunda Sagrada · Preview Geral</title><style>*{box-sizing:border-box}html,body{margin:0;background:#080705;color:#e7c276;font-family:Arial,sans-serif}.hero-wrap{width:min(1024px,100%);margin:auto;position:relative;background:#080705;overflow:hidden}.art{display:block;width:100%;height:auto}.hot{position:absolute;z-index:10;display:block;cursor:pointer;-webkit-tap-highlight-color:transparent}.single{left:7.5%;top:53%;width:33%;height:8%}.doubles{left:60%;top:53%;width:33%;height:8%}.loading{min-height:60vh;display:grid;place-items:center;text-align:center;padding:24px;color:#d9b878;letter-spacing:.12em;text-transform:uppercase;font-size:12px}.blend{height:125px;margin-top:-42px;position:relative;z-index:2;background:linear-gradient(180deg,rgba(8,7,5,0),#100d09 48%,#17120d 78%,#21170f 100%);pointer-events:none}.master-frame{display:block;width:100%;border:0;background:#21170f;min-height:2600px}.note{text-align:center;padding:14px 12px 18px;background:#21170f;color:#9f8a64;font-size:12px}.note b{color:#d9b878}@media(max-width:700px){.blend{height:92px;margin-top:-30px}.master-frame{min-height:3600px}}</style></head><body><section class="hero-wrap" id="heroWrap"><div class="loading" id="loading">Carregando conceito aprovado…</div><img id="art" class="art" alt="Segunda Sagrada — Geral" hidden><a class="hot single" href="./index.html" aria-label="Entrar no Simples" title="Entrar no Simples"></a><a class="hot doubles" href="./duplas.html" aria-label="Entrar no Duplas" title="Entrar no Duplas"></a></section><div class="blend"></div><iframe id="masterFrame" class="master-frame" src="./master.html?v=preview9" title="Geral atual"></iframe><div class="note"><b>PREVIEW TEMPORÁRIO</b> · o Geral oficial continua inalterado.</div><script>const img=document.getElementById('art'),loading=document.getElementById('loading'),hero=document.getElementById('heroWrap');img.onload=()=>{img.hidden=false;loading?.remove();const crop=()=>{hero.style.height=(img.getBoundingClientRect().width*0.765)+'px'};crop();addEventListener('resize',crop)};img.onerror=()=>{loading.textContent='Erro ao carregar a imagem do preview.'};img.src='https://wnlqmlhmbiboedxhquvf.supabase.co/storage/v1/object/public/assets/segunda-sagrada-geral.png?v=1';const frame=document.getElementById('masterFrame');frame.onload=()=>{try{const d=frame.contentDocument;const style=d.createElement('style');style.textContent='html,body{background:#21170f!important}.kicker,.hero>h1,.hero-modalities{display:none!important}.hero{padding-top:24px!important;margin-top:0!important}.app{padding-top:0!important}.hero-side{margin-top:18px!important}body{margin-top:0!important}';d.head.appendChild(style);const fit=()=>{frame.style.height=Math.max(d.documentElement.scrollHeight,d.body.scrollHeight)+'px'};fit();new ResizeObserver(fit).observe(d.body)}catch(e){}};</script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17110d">
+<title>Segunda Sagrada · Preview Geral</title>
+<link rel="stylesheet" href="./master.css?v=20260824-modalities-space">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  .preview-app{padding-bottom:0;overflow:hidden}
+  .court-portal{position:relative;margin:clamp(14px,2.4vw,28px);margin-bottom:0;border-radius:30px;overflow:hidden;border:1px solid rgba(217,184,120,.28);background:#080705;box-shadow:0 22px 60px rgba(0,0,0,.32)}
+  .court-crop{position:relative;overflow:hidden;width:100%}
+  .court-art{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
+  .court-link{position:absolute;z-index:5;top:14%;bottom:2%;display:block;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  .court-link.single{left:0;width:50%}
+  .court-link.doubles{right:0;width:50%}
+  .court-link:focus-visible{outline:3px solid var(--gold);outline-offset:-5px}
+  .court-transition{height:70px;margin-top:-34px;position:relative;z-index:6;pointer-events:none;background:linear-gradient(180deg,rgba(23,17,13,0),rgba(23,17,13,.68) 50%,#17110d 100%)}
+  .master-frame{display:block;width:100%;border:0;background:transparent;min-height:3200px;overflow:hidden}
+  .preview-note{color:var(--faint);font-size:10px;text-align:center;padding:8px 12px 18px;letter-spacing:.09em;text-transform:uppercase}
+  @media(max-width:520px){.court-portal{margin:10px 7px 0;border-radius:24px}.court-transition{height:54px;margin-top:-28px}.master-frame{min-height:4200px}}
+</style>
+</head>
+<body>
+<div class="app preview-app">
+  <section class="court-portal" aria-label="Escolha a modalidade">
+    <div class="court-crop" id="courtCrop">
+      <img id="courtArt" class="court-art" alt="Segunda Sagrada — Simples e Duplas">
+      <a class="court-link single" href="./index.html" aria-label="Entrar no Simples"></a>
+      <a class="court-link doubles" href="./duplas.html" aria-label="Entrar no Duplas"></a>
+    </div>
+  </section>
+  <div class="court-transition"></div>
+  <iframe id="masterFrame" class="master-frame" src="./master.html?v=preview10" title="Geral atual" scrolling="no"></iframe>
+  <div class="preview-note">Preview temporário · Geral oficial inalterado</div>
+</div>
+<script>
+const art=document.getElementById('courtArt');
+const crop=document.getElementById('courtCrop');
+art.onload=()=>{
+  const fit=()=>{ crop.style.height=(art.getBoundingClientRect().width*0.765)+'px'; };
+  fit(); addEventListener('resize',fit);
+};
+art.src='https://wnlqmlhmbiboedxhquvf.supabase.co/storage/v1/object/public/assets/segunda-sagrada-geral.png?v=1';
+
+const frame=document.getElementById('masterFrame');
+frame.onload=()=>{
+  try{
+    const d=frame.contentDocument;
+    const style=d.createElement('style');
+    style.textContent=`
+      html,body{background:transparent!important;overflow:hidden!important}
+      body:before,body:after{display:none!important}
+      .app{width:100%!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;backdrop-filter:none!important;padding-bottom:0!important}
+      .kicker,.hero>h1,.hero-modalities{display:none!important}
+      .hero{padding-top:10px!important;margin:0!important;border-top:0!important;background:transparent!important}
+      .hero:after{display:none!important}
+      .hero-side{margin-top:6px!important}
+    `;
+    d.head.appendChild(style);
+    const fit=()=>{frame.style.height=Math.max(d.documentElement.scrollHeight,d.body.scrollHeight)+'px'};
+    fit();
+    new ResizeObserver(fit).observe(d.body);
+  }catch(e){console.error(e)}
+};
+</script>
+</body>
+</html>
