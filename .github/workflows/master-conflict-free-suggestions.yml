@@ -1,0 +1,77 @@
+name: Master Conflict Free Suggestions
+on:
+  push:
+    paths: ['.github/workflows/master-conflict-free-suggestions.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch Master suggestion planner
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          old='''function renderSuggestions(){
+  const render=(arr,empty)=>arr.length?arr.map(x=>`<div class=\"suggest-item\"><strong>${x.label}</strong><small>${fmt(x.date)}</small></div>`).join(''):`<div class=\"note\">${empty}</div>`;
+  singleSuggestions.innerHTML=render(getSingleSuggestions(),'Nenhum confronto de simples disponível.');
+  doubleSuggestions.innerHTML=render(getDoubleSuggestions(),'Nenhum confronto de duplas disponível.');
+}'''
+          new='''function getConflictFreeSuggestions(limit=5){
+  const playedSingle=new Set((single.matches||[]).map(m=>m.id));
+  const playedDouble=new Set((doubles.matches||[]).map(m=>m.id));
+  let pendingSingle=(single.schedule||[]).filter(m=>!playedSingle.has(m.id));
+  let pendingDouble=doublesSchedule().filter(m=>!playedDouble.has(m.id));
+  const count={};(single.players||[]).forEach(p=>count[p]=(single.matches||[]).filter(m=>m.playerA===p||m.playerB===p).length);
+  const singles=[],doublesOut=[];
+  for(const date of visibleDates()){
+    const availableSingles=pendingSingle.filter(m=>available(m.playerA,date)&&available(m.playerB,date)).sort((a,b)=>(count[a.playerA]+count[a.playerB])-(count[b.playerA]+count[b.playerB]));
+    const availableDoubles=pendingDouble.filter(m=>[...m.a,...m.b].every(p=>available(p,date)));
+    let chosenS=null,chosenD=null;
+    outer: for(const d of availableDoubles){
+      const used=new Set([...d.a,...d.b]);
+      const s=availableSingles.find(x=>!used.has(x.playerA)&&!used.has(x.playerB));
+      if(s){chosenD=d;chosenS=s;break outer}
+    }
+    if(!chosenD&&availableDoubles.length) chosenD=availableDoubles[0];
+    if(!chosenS){
+      const used=chosenD?new Set([...chosenD.a,...chosenD.b]):new Set();
+      chosenS=availableSingles.find(x=>!used.has(x.playerA)&&!used.has(x.playerB))||null;
+    }
+    if(chosenD&&doublesOut.length<limit){
+      doublesOut.push({date,label:chosenD.a.join(' + ')+' x '+chosenD.b.join(' + ')});
+      pendingDouble=pendingDouble.filter(x=>x.id!==chosenD.id);
+    }
+    if(chosenS&&singles.length<limit){
+      singles.push({date,label:chosenS.playerA+' x '+chosenS.playerB});
+      pendingSingle=pendingSingle.filter(x=>x.id!==chosenS.id);
+      count[chosenS.playerA]=(count[chosenS.playerA]||0)+1;count[chosenS.playerB]=(count[chosenS.playerB]||0)+1;
+    }
+    if(singles.length>=limit&&doublesOut.length>=limit)break;
+  }
+  return{singles,doubles:doublesOut};
+}
+function renderSuggestions(){
+  const render=(arr,empty)=>arr.length?arr.map(x=>`<div class=\"suggest-item\"><strong>${x.label}</strong><small>${fmt(x.date)} · sem conflito de atletas</small></div>`).join(''):`<div class=\"note\">${empty}</div>`;
+  const plan=getConflictFreeSuggestions();
+  singleSuggestions.innerHTML=render(plan.singles,'Nenhum confronto de simples disponível sem conflito.');
+  doubleSuggestions.innerHTML=render(plan.doubles,'Nenhum confronto de duplas disponível sem conflito.');
+}'''
+          if old not in t:
+              raise SystemExit('renderSuggestions block not found')
+          t=t.replace(old,new,1)
+          t=t.replace('Sugestões automáticas usando as quartas disponíveis e apenas confrontos ainda pendentes.','Sugestões automáticas usando as quartas disponíveis e apenas confrontos ainda pendentes. Na mesma data, nenhum atleta é sugerido em mais de um jogo, seja Simples ou Duplas.',1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          grep -q 'getConflictFreeSuggestions' master.html
+          grep -q 'sem conflito de atletas' master.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'feat: avoid athlete conflicts in master suggestions'
+          git push
