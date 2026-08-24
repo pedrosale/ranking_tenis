@@ -1,0 +1,30 @@
+name: Align Doubles Ranking
+on:
+  push:
+    paths: ['.github/workflows/align-doubles-ranking.yml']
+permissions:
+  contents: write
+jobs:
+  align:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('duplas.html')
+          t=p.read_text(encoding='utf-8')
+          old='.table-wrap{overflow:auto}table{width:100%;border-collapse:separate;border-spacing:0 7px;min-width:1080px}th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:6px 9px;text-align:center}th:nth-child(2),td:nth-child(2){text-align:left}td{padding:12px 9px;text-align:center;background:rgba(0,0,0,.13);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}td:first-child{border-left:1px solid var(--line);border-radius:13px 0 0 13px;color:var(--gold);font-weight:900}td:last-child{border-right:1px solid var(--line);border-radius:0 13px 13px 0}'
+          new='.table-wrap{overflow-x:auto;padding:18px 18px 20px}.table-wrap::-webkit-scrollbar{height:10px}.table-wrap::-webkit-scrollbar-thumb{background:rgba(244,234,215,.16);border-radius:999px}table{width:100%;border-collapse:separate;border-spacing:0 8px;min-width:920px}th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.10em;font-weight:900;padding:0 12px 6px;text-align:center;white-space:nowrap}th:nth-child(2),td:nth-child(2){text-align:left}td{padding:14px 12px;text-align:center;background:rgba(0,0,0,.13);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}td:first-child{border-left:1px solid var(--line);border-radius:16px 0 0 16px;color:var(--gold);font-size:20px;font-weight:900}td:last-child{border-right:1px solid var(--line);border-radius:0 16px 16px 0;font-size:18px;font-weight:900;color:var(--cream)}#ranking tbody tr:first-child td{background:linear-gradient(90deg,rgba(217,184,120,.18),rgba(0,0,0,.12));border-color:rgba(217,184,120,.28)}#ranking h2{font-family:"Playfair Display",Georgia,serif;font-size:clamp(28px,3vw,42px);letter-spacing:-.045em;margin-top:5px}'
+          if old not in t:
+              raise SystemExit('ranking css block not found')
+          t=t.replace(old,new,1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add duplas.html
+          git rm .github/workflows/align-doubles-ranking.yml
+          git commit -m 'style: align doubles ranking table with product design system'
+          git push
