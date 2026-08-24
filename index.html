@@ -1111,7 +1111,7 @@ td:nth-child(2) {
 
                 <label>Nome do atleta</label>
                 <input id="playerName" placeholder="Ex: Pedro" />
-                <button onclick="addPlayer()">Adicionar jogador</button>
+                <button onclick="addPlayer()">Adicionar atleta</button>
 
                 <div class="status" id="playersStatus"></div>
                 <div class="players-list" id="playersList"></div>
@@ -1341,9 +1341,9 @@ window.addPlayer = async function () {
     const input = document.getElementById("playerName");
     const name = input.value.trim();
 
-    if (!name) return alert("Informe o nome do jogador.");
+    if (!name) return alert("Informe o nome do atleta.");
     if (state.players.length >= 10) return alert("O limite é de 10 participantes.");
-    if (state.players.includes(name)) return alert("Este jogador já foi cadastrado.");
+    if (state.players.includes(name)) return alert("Este atleta já foi cadastrado.");
 
     state.players.push(name);
     state.availability[name] = {};
