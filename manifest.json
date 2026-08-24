@@ -1,8 +1,8 @@
 {
   "name": "Segunda Sagrada",
   "short_name": "Sagrada",
-  "description": "Ranking oficial do torneio Segunda Sagrada.",
-  "start_url": "./",
+  "description": "Central oficial do torneio Segunda Sagrada.",
+  "start_url": "./master.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
