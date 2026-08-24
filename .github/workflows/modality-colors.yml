@@ -1,0 +1,39 @@
+name: Modality Color Identity
+on:
+  push:
+    paths: ['.github/workflows/modality-colors.yml']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          t=t.replace('<a class="btn clay" href="./index.html">Abrir Simples</a>','<a class="btn" href="./index.html">Abrir Simples</a>')
+          t=t.replace('<a class="btn" href="./duplas.html">Abrir Duplas</a>','<a class="btn doubles" href="./duplas.html">Abrir Duplas</a>')
+          p.write_text(t,encoding='utf-8')
+
+          p=Path('master.css')
+          t=p.read_text(encoding='utf-8')
+          t=t.replace('.btn.clay{background:linear-gradient(135deg,var(--clay),var(--clay-dark))}', '.btn.clay{background:linear-gradient(135deg,var(--clay),var(--clay-dark))}.btn.doubles{background:linear-gradient(135deg,#b8904f,#765a2d)}')
+          p.write_text(t,encoding='utf-8')
+
+          p=Path('duplas.html')
+          t=p.read_text(encoding='utf-8')
+          t=t.replace('.kicker::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--green-soft);box-shadow:0 0 0 6px rgba(47,123,80,.12)}', '.kicker::before{content:"";width:8px;height:8px;border-radius:999px;background:#b8904f;box-shadow:0 0 0 6px rgba(184,144,79,.16)}', 1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html master.css duplas.html
+          git rm .github/workflows/modality-colors.yml
+          git commit -m 'style: establish green simple and bronze doubles identity'
+          git push
+# trigger
