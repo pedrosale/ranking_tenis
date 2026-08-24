@@ -1072,39 +1072,15 @@ td:nth-child(2) {
                     <h2>Sistema de pontuação utilizado</h2>
                 </div>
                 <div class="section-note">
-                    Pontuação por resultado, com saldo de games como primeiro critério de desempate.
+                    Cada game vencido vale ponto. Em empate na pontuação, o saldo de games é o primeiro critério de desempate.
                 </div>
             </div>
 
             <div class="score-rules">
-                <div class="rule-card">
-                    <div class="rule-number">3</div>
-                    <div>
-                        <strong>Vitória normal</strong>
-                        <span>Em resultados de 8x0 até 8x6, o vencedor recebe 3 pontos e o perdedor recebe 0.</span>
-                    </div>
-                </div>
-                <div class="rule-card">
-                    <div class="rule-number">2/1</div>
-                    <div>
-                        <strong>Vitória no tie-break</strong>
-                        <span>Se a partida chegar a 7x7, o resultado final é 8x7: vencedor recebe 2 pontos e perdedor recebe 1.</span>
-                    </div>
-                </div>
-                <div class="rule-card">
-                    <div class="rule-number">8</div>
-                    <div>
-                        <strong>Formato do placar</strong>
-                        <span>Resultados válidos: 8x0 a 8x6 ou 8x7. O sistema bloqueia placares fora desse formato.</span>
-                    </div>
-                </div>
-                <div class="rule-card">
-                    <div class="rule-number">≠</div>
-                    <div>
-                        <strong>Critérios de desempate</strong>
-                        <span>Em caso de empate em pontos, vence quem tiver maior saldo de games; depois, maior número de vitórias e, por fim, ordem alfabética.</span>
-                    </div>
-                </div>
+                <div class="rule-card"><div class="rule-number">10+</div><div><strong>Vencedor</strong><span>Recebe 10 pontos de base + 1 ponto por game vencido. Como toda vitória termina em 8, o vencedor recebe 18 pontos.</span></div></div>
+                <div class="rule-card"><div class="rule-number">6+</div><div><strong>Perdedor</strong><span>Recebe 6 pontos de base + 1 ponto por game vencido. Ex.: em 8x6, a pontuação é 18 x 12.</span></div></div>
+                <div class="rule-card"><div class="rule-number">8</div><div><strong>Formato do placar</strong><span>Resultados válidos: 8x0 a 8x6 ou 8x7. Em 7x7, joga-se o tie-break e o placar final é 8x7. Não existe 9x7.</span></div></div>
+                <div class="rule-card"><div class="rule-number">≠</div><div><strong>Critérios de desempate</strong><span>Em empate de pontos: maior saldo de games; depois, maior número de vitórias e, por fim, ordem alfabética.</span></div></div>
             </div>
         </section>
 
@@ -1449,20 +1425,16 @@ function calculateRanking() {
         B.gamesVencidos += match.scoreB;
         B.gamesSofridos += match.scoreA;
 
-        const isTieBreak = Math.min(match.scoreA, match.scoreB) === 7;
-        const winnerPoints = isTieBreak ? 2 : 3;
-        const loserPoints = isTieBreak ? 1 : 0;
-
         if (match.scoreA > match.scoreB) {
             A.vitorias++;
             B.derrotas++;
-            A.pontos += winnerPoints;
-            B.pontos += loserPoints;
+            A.pontos += 10 + match.scoreA;
+            B.pontos += 6 + match.scoreB;
         } else {
             B.vitorias++;
             A.derrotas++;
-            B.pontos += winnerPoints;
-            A.pontos += loserPoints;
+            B.pontos += 10 + match.scoreB;
+            A.pontos += 6 + match.scoreA;
         }
     });
 
