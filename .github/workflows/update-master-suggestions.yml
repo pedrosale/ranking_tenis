@@ -50,3 +50,4 @@ jobs:
           git add master.html
           git commit -m 'feat: add match suggestions to master'
           git push
+# retrigger
