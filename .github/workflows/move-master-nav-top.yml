@@ -1,0 +1,37 @@
+name: Move Master Navigation Top
+on:
+  push:
+    paths: ['.github/workflows/move-master-nav-top.yml']
+permissions:
+  contents: write
+jobs:
+  move:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move modality buttons to top
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          start='<section class="section card">\n<div class="head"><div><div class="eyebrow">08 · Modalidades</div><h2>Entrar em quadra</h2></div>'
+          footer='<div class="footer">Segunda Sagrada · Master Preview</div>'
+          if start not in t:
+              raise SystemExit('modalities section not found')
+          s=t.index(start)
+          e=t.index(footer,s)
+          block=t[s:e]
+          t=t[:s]+t[e:]
+          hero_end=t.index('</section>')+len('</section>')
+          t=t[:hero_end]+'\n\n'+block+t[hero_end:]
+          p.write_text(t,encoding='utf-8')
+          PY
+          grep -n '08 · Modalidades' master.html | head -1
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'ui: move master modality buttons to top'
+          git push
