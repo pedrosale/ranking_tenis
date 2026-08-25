@@ -5,14 +5,48 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#17110d">
 <title>Segunda Sagrada · Geral</title>
+<link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="./master.css?v=20260824-modalities-space">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+.hero-court-wrap{padding-top:18px}
+.hero-kicker{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 14px 10px;color:var(--gold-soft);font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}
+.hero-kicker:before{content:"";width:8px;height:8px;flex:0 0 8px;border-radius:999px;background:#d9b878;box-shadow:0 0 0 6px rgba(217,184,120,.14);animation:generalPulse 1.25s ease-in-out infinite;transform-origin:center}
+@keyframes generalPulse{0%,100%{transform:scale(.82);box-shadow:0 0 0 4px rgba(217,184,120,.10);opacity:.55}50%{transform:scale(1.28);box-shadow:0 0 0 9px rgba(217,184,120,.08),0 0 18px rgba(217,184,120,.65);opacity:1}}
+.court-portal{position:relative;margin:0 clamp(14px,2.4vw,28px);border-radius:30px;overflow:hidden;border:1px solid rgba(217,184,120,.24);background:#17110d;box-shadow:0 22px 60px rgba(0,0,0,.22);isolation:isolate}
+.court-crop{position:relative;overflow:hidden;width:100%;background:#17110d;height:auto;aspect-ratio:1/.765}
+.court-art{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;mix-blend-mode:screen;opacity:.92;filter:contrast(1.08) saturate(.96) brightness(.92)}
+.court-crop:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(23,17,13,.01) 0%,rgba(23,17,13,0) 78%,rgba(23,17,13,.12) 94%,rgba(23,17,13,.34) 100%);mix-blend-mode:multiply}
+.court-link{position:absolute;z-index:5;top:14%;bottom:1%;display:block;-webkit-tap-highlight-color:transparent;touch-action:manipulation}.court-link.single{left:0;width:50%}.court-link.doubles{right:0;width:50%}.court-link:focus-visible{outline:3px solid var(--gold);outline-offset:-5px}
+.court-transition{height:46px;margin-top:-12px;position:relative;z-index:6;pointer-events:none;background:linear-gradient(180deg,rgba(23,17,13,0),rgba(23,17,13,.30) 52%,#17110d 100%)}
+.hero.integrated-hero{padding-top:8px!important}
+.hero.integrated-hero>h1{display:none}
+.hero.integrated-hero>.kicker{display:none}
+.hero.integrated-hero .court-motto strong{font-size:0}
+.hero.integrated-hero .court-motto strong:after{content:'Visão Geral';font-size:clamp(24px,4vw,36px)}
+.hero.integrated-hero .court-motto span{display:none}
+.hero.integrated-hero .header-actions a[href="#modalidades"]{display:none}
+.hero.integrated-hero .hero-modalities{display:none}
+.hero.integrated-hero .hero-side{margin-top:8px}
+@media(max-width:520px){.hero-court-wrap{padding-top:12px}.court-portal{margin:0 7px;border-radius:24px}.court-transition{height:40px;margin-top:-8px}}
+</style>
 </head>
 <body>
 <div class="app">
-<section class="hero">
+<section class="hero-court-wrap" aria-label="Escolha a modalidade">
+  <div class="hero-kicker">Segunda Sagrada · Temporada 2026</div>
+  <div class="court-portal">
+    <div class="court-crop">
+      <img class="court-art" src="https://wnlqmlhmbiboedxhquvf.supabase.co/storage/v1/object/public/assets/segunda-sagrada-geral.png?v=1" alt="Segunda Sagrada — Simples e Duplas">
+      <a class="court-link single" href="./index.html" aria-label="Entrar no Simples"></a>
+      <a class="court-link doubles" href="./duplas.html" aria-label="Entrar no Duplas"></a>
+    </div>
+  </div>
+  <div class="court-transition"></div>
+</section>
+<section class="hero integrated-hero">
   <div class="kicker">Segunda Sagrada · Temporada 2026</div>
   <h1>Segunda Sagrada - Geral</h1>
   <div class="court-motto"><strong>La victoire appartient au plus opiniâtre.</strong><span>Victory belongs to the most tenacious</span></div>
