@@ -1,8 +1,5 @@
-name: Lift News above Visao Geral
-on:
-  push:
-    paths:
-      - '.github/workflows/lift-news-above-overview.yml'
+name: Lift News above overview
+on: push
 permissions:
   contents: write
 jobs:
@@ -10,24 +7,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
+      - name: Move News card
+        run: |
           python - <<'PY'
           from pathlib import Path
-          p=Path('master.html'); t=p.read_text(encoding='utf-8')
-          block='''<a class="news-feature" href="./news.html" aria-label="Abrir News da Segunda Sagrada">
-  <span class="news-feature-copy"><span class="news-feature-kicker">News · Arquivo da temporada</span><span class="news-feature-title">Segunda Sagrada News</span><span class="news-feature-sub">Capas, resenhas e momentos da temporada.</span></span><span class="news-feature-arrow" aria-hidden="true">→</span>
-</a>
-'''
-          if block not in t: raise SystemExit('News block not found')
-          t=t.replace(block,'',1)
-          marker='<section class="hero integrated-hero">'
-          if marker not in t: raise SystemExit('Visao Geral marker not found')
-          t=t.replace(marker,block+marker,1)
-          p.write_text(t,encoding='utf-8')
+          p = Path('master.html')
+          t = p.read_text(encoding='utf-8')
+          start = t.index('<a class="news-feature"')
+          end = t.index('</a>', start) + len('</a>')
+          block = t[start:end]
+          t = t[:start] + t[end:]
+          marker = '<section class="hero integrated-hero">'
+          pos = t.index(marker)
+          t = t[:pos] + block + '\n' + t[pos:]
+          p.write_text(t, encoding='utf-8')
           PY
           git diff --check
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name github-actions-bot
+          git config user.email github-actions-bot@users.noreply.github.com
           git add master.html
-          git commit -m 'ui: move News above Visao Geral'
+          git commit -m "Move News above overview"
           git push
