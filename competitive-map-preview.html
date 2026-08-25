@@ -17,7 +17,7 @@ body{padding:18px}.app{width:min(1100px,100%);margin:0 auto;border:1px solid var
 .court .mid-v,.court .service-v,.court .service-h,.court .singles-l,.court .singles-r{position:absolute;background:rgba(255,250,240,.93)}.mid-v{top:0;bottom:0;left:50%;width:3px;transform:translateX(-50%)}.service-v{top:18%;bottom:18%;left:50%;width:2px;transform:translateX(-50%)}.service-h{left:18%;right:18%;top:50%;height:2px;transform:translateY(-50%)}.singles-l{top:0;bottom:0;left:12%;width:2px}.singles-r{top:0;bottom:0;right:12%;width:2px}
 .axis-x,.axis-y{position:absolute;z-index:7;font-size:11px;font-weight:800;letter-spacing:.04em;color:#fff8ec;text-shadow:0 2px 4px rgba(0,0,0,.55)}.axis-x{left:50%;bottom:8px;transform:translateX(-50%)}.axis-y{left:8px;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:left top}.axis-good-x{position:absolute;right:10px;bottom:8px;z-index:7;color:#fff8ec;font-size:10px;font-weight:800}.axis-good-y{position:absolute;left:10px;top:8px;z-index:7;color:#fff8ec;font-size:10px;font-weight:800}
 .zone{position:absolute;z-index:2;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,248,236,.48)}.zone.tl{top:12px;left:26px}.zone.tr{top:12px;right:26px}.zone.bl{bottom:24px;left:26px}.zone.br{bottom:24px;right:26px}
-.player{position:absolute;z-index:9;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;white-space:nowrap}.dot{width:14px;height:14px;border-radius:50%;background:#f8e4a8;border:2px solid #2b160f;box-shadow:0 0 0 3px rgba(255,248,236,.20),0 4px 10px rgba(0,0,0,.35);flex:0 0 14px}.name{padding:4px 7px;border-radius:999px;background:rgba(23,17,13,.82);border:1px solid rgba(255,248,236,.22);font-size:11px;font-weight:800;color:#fff8ec;box-shadow:0 4px 12px rgba(0,0,0,.22)}.pos{display:block;font-size:9px;color:rgba(244,234,215,.66);font-weight:600;margin-top:1px}
+.player{position:absolute;z-index:9;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;white-space:nowrap}.dot{width:14px;height:14px;border-radius:50%;background:#f8e4a8;border:2px solid #2b160f;box-shadow:0 0 0 3px rgba(255,248,236,.20),0 4px 10px rgba(0,0,0,.35);flex:0 0 14px}.name{padding:5px 8px;border-radius:12px;background:rgba(23,17,13,.84);border:1px solid rgba(255,248,236,.22);font-size:11px;font-weight:800;color:#fff8ec;box-shadow:0 4px 12px rgba(0,0,0,.22)}.pos{display:block;font-size:9px;color:rgba(244,234,215,.66);font-weight:600;margin-top:2px}.games{display:block;font-size:9px;color:rgba(217,184,120,.9);font-weight:700;margin-top:1px}
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.card{border:1px solid var(--line);border-radius:16px;padding:13px;background:rgba(255,255,255,.035)}.card strong{display:block;font-size:12px}.card span{display:block;margin-top:4px;color:var(--muted);font-size:11px;line-height:1.45}
 .note{padding:0 24px 24px;color:rgba(244,234,215,.48);font-size:11px;line-height:1.5}
 @media(max-width:720px){body{padding:8px}.app{border-radius:22px}.header{padding:20px 16px 14px}.stage{padding:0 10px 14px}.court-shell{padding:10px;border-radius:18px;overflow-x:auto}.court{min-width:700px;min-height:440px}.cards{grid-template-columns:1fr}.note{padding:0 16px 18px}.player .name{font-size:10px}}
@@ -29,7 +29,7 @@ body{padding:18px}.app{width:min(1100px,100%);margin:0 auto;border:1px solid var
     <div class="eyebrow">Preview · Geral</div>
     <h1>Mapa competitivo</h1>
     <p>Posição no ranking de Simples × posição no ranking de Duplas. Dados abaixo são simulados apenas para validar a comunicação visual. Quanto mais para cima, melhor no Simples; quanto mais para a direita, melhor em Duplas.</p>
-    <div class="legend"><span class="pill">Vertical · Simples</span><span class="pill">Horizontal · Duplas</span><span class="pill">1º lugar = melhor posição</span></div>
+    <div class="legend"><span class="pill">Vertical · Simples</span><span class="pill">Horizontal · Duplas</span><span class="pill">1º lugar = melhor posição</span><span class="pill">Jogos = Simples + Duplas</span></div>
   </header>
   <section class="stage">
     <div class="court-shell">
@@ -41,19 +41,19 @@ body{padding:18px}.app{width:min(1100px,100%);margin:0 auto;border:1px solid var
     </div>
     <div class="cards">
       <div class="card"><strong>Leitura imediata</strong><span>O canto superior direito concentra atletas bem posicionados nas duas modalidades.</span></div>
-      <div class="card"><strong>Sem distorção de pontos</strong><span>O gráfico usa posições, então Duplas não pesa mais apenas por distribuir mais pontos.</span></div>
+      <div class="card"><strong>Contexto de volume</strong><span>O total de jogos ajuda a interpretar a posição: atletas com mais partidas tiveram mais oportunidades de pontuar.</span></div>
       <div class="card"><strong>Complementar ao Geral</strong><span>O ranking oficial continua por pontos. Aqui mostramos o perfil competitivo entre modalidades.</span></div>
     </div>
   </section>
-  <div class="note">Simulação: Ale S1/D4 · Pedro S2/D2 · Guedes S3/D6 · Marcel S4/D8 · Fabio S5/D3 · João S6/D5 · Murillo S7/D1 · Irineu S8/D7 · Serginho S9/D9 · Wagner S10/D10.</div>
+  <div class="note">Simulação: Ale S1/D4 · 12 jogos · Pedro S2/D2 · 13 jogos · Guedes S3/D6 · 10 jogos · Marcel S4/D8 · 9 jogos · Fabio S5/D3 · 11 jogos · João S6/D5 · 10 jogos · Murillo S7/D1 · 12 jogos · Irineu S8/D7 · 9 jogos · Serginho S9/D9 · 8 jogos · Wagner S10/D10 · 7 jogos.</div>
 </div>
 <script>
 const players=[
-{name:'Ale',s:1,d:4},{name:'Pedro',s:2,d:2},{name:'Guedes',s:3,d:6},{name:'Marcel',s:4,d:8},{name:'Fabio',s:5,d:3},{name:'João',s:6,d:5},{name:'Murillo',s:7,d:1},{name:'Irineu',s:8,d:7},{name:'Serginho',s:9,d:9},{name:'Wagner',s:10,d:10}
+{name:'Ale',s:1,d:4,g:12},{name:'Pedro',s:2,d:2,g:13},{name:'Guedes',s:3,d:6,g:10},{name:'Marcel',s:4,d:8,g:9},{name:'Fabio',s:5,d:3,g:11},{name:'João',s:6,d:5,g:10},{name:'Murillo',s:7,d:1,g:12},{name:'Irineu',s:8,d:7,g:9},{name:'Serginho',s:9,d:9,g:8},{name:'Wagner',s:10,d:10,g:7}
 ];
 const court=document.getElementById('court');
 const pct=v=>10+((10-v)/9)*80;
-players.forEach(p=>{const el=document.createElement('div');el.className='player';el.style.left=pct(p.d)+'%';el.style.top=(100-pct(p.s))+'%';el.innerHTML=`<span class="dot"></span><span class="name">${p.name}<span class="pos">S ${p.s}º · D ${p.d}º</span></span>`;court.appendChild(el)});
+players.forEach(p=>{const el=document.createElement('div');el.className='player';el.style.left=pct(p.d)+'%';el.style.top=(100-pct(p.s))+'%';el.innerHTML=`<span class="dot"></span><span class="name">${p.name}<span class="pos">S ${p.s}º · D ${p.d}º</span><span class="games">${p.g} jogos</span></span>`;court.appendChild(el)});
 </script>
 </body>
 </html>
