@@ -1,5 +1,5 @@
-const CACHE_NAME = "segunda-sagrada-v6";
-const APP_SHELL = ["./", "./index.html", "./geral-preview.html", "./master.html", "./duplas.html", "./instalar.html", "./manifest.json"];
+const CACHE_NAME = "segunda-sagrada-v7";
+const APP_SHELL = ["./", "./index.html", "./master.html", "./geral-content.html", "./duplas.html", "./instalar.html", "./manifest.json"];
 
 self.addEventListener("install", event => {
   self.skipWaiting();
@@ -24,15 +24,15 @@ self.addEventListener("fetch", event => {
 
   if (isAppRootNavigation) {
     event.respondWith(
-      fetch("./geral-preview.html", { cache: "no-store" })
+      fetch("./master.html", { cache: "no-store" })
         .then(response => {
           if (response.ok) {
             const copy = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put("./geral-preview.html", copy));
+            caches.open(CACHE_NAME).then(cache => cache.put("./master.html", copy));
           }
           return response;
         })
-        .catch(() => caches.match("./geral-preview.html"))
+        .catch(() => caches.match("./master.html"))
     );
     return;
   }
