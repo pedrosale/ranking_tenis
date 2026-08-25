@@ -31,6 +31,11 @@
 .hero.integrated-hero .hero-modalities{display:none}
 .hero.integrated-hero .hero-side{margin-top:8px}
 @media(max-width:520px){.hero-court-wrap{padding-top:12px}.court-portal{margin:0 7px;border-radius:24px}.court-transition{height:40px;margin-top:-8px}}
+
+.news-feature{margin:6px 0 20px;text-decoration:none;color:inherit;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;border:1px solid rgba(217,184,120,.48);border-radius:20px;background:linear-gradient(135deg,rgba(217,184,120,.14),rgba(217,184,120,.035));box-shadow:0 10px 30px rgba(0,0,0,.12);transition:transform .18s ease,border-color .18s ease,background .18s ease}
+.news-feature:hover{transform:translateY(-1px);border-color:rgba(217,184,120,.72);background:linear-gradient(135deg,rgba(217,184,120,.19),rgba(217,184,120,.05))}
+.news-feature-copy{display:flex;flex-direction:column;gap:4px}.news-feature-kicker{color:var(--gold-soft);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}.news-feature-title{font-family:'Playfair Display',serif;font-size:clamp(20px,3vw,27px);font-weight:700}.news-feature-sub{font-size:13px;opacity:.72;line-height:1.45}.news-feature-arrow{font-size:25px;color:var(--gold-soft);flex:0 0 auto}
+@media(max-width:520px){.news-feature{padding:16px 17px;margin-bottom:18px}.news-feature-sub{font-size:12px}}
 </style>
 </head>
 <body>
@@ -57,7 +62,6 @@
     <a class="nav-pill" href="#participantes">Atletas</a>
     <a class="nav-pill" href="#agenda">Agenda</a>
     <a class="nav-pill" href="#sugestoes">Próximos jogos</a>
-    <a class="nav-pill" href="./news.html">News</a>
   </nav>
   <div class="hero-side">
     <section class="hero-modalities" id="modalidades">
@@ -75,6 +79,9 @@
     </div>
   </div>
 </section>
+<a class="news-feature" href="./news.html" aria-label="Abrir News da Segunda Sagrada">
+  <span class="news-feature-copy"><span class="news-feature-kicker">News · Arquivo da temporada</span><span class="news-feature-title">Segunda Sagrada News</span><span class="news-feature-sub">Capas, resenhas e momentos da temporada.</span></span><span class="news-feature-arrow" aria-hidden="true">→</span>
+</a>
 <section class="section leader-grid"><div class="card leader"><div><div class="eyebrow">01 · Liderança geral</div><div class="leader-name" id="leaderName">Aguardando resultados</div><div class="chips"><span class="chip" id="leaderPoints">0 pontos</span><span class="chip" id="leaderSingle">Simples: 0</span><span class="chip" id="leaderDoubles">Duplas: 0</span><span class="chip" id="leaderBalance">Saldo: 0</span></div></div><div class="note">O ranking soma as duas modalidades. Em empate: saldo combinado, vitórias e ordem alfabética.</div></div><div class="card"><div class="eyebrow">02 · Temporada por modalidade</div><div class="split-bars" style="margin-top:12px"><div class="bar"><div class="bar-top"><strong>Simples</strong><span id="singleProgress">0/45 jogos</span></div><p class="note">Todos contra todos.</p></div><div class="bar"><div class="bar-top"><strong>Duplas</strong><span id="doubleProgress">0/20 jogos</span></div><p class="note">20 confrontos sorteados, sem parceria repetida.</p></div></div></div></section>
 <section class="section card" id="ranking"><div class="head"><div><div class="eyebrow">03 · Ranking</div><h2>Ranking atualizado · Geral</h2></div><div class="note">Pontos e games do Simples + Duplas. Match tie-break não entra no saldo de games.</div></div><div class="table-wrap"><table><thead><tr><th>Posição</th><th>Atleta</th><th>Jogos</th><th>Vitórias</th><th>Derrotas</th><th>Games vencidos</th><th>Games sofridos</th><th>Saldo de games</th><th>Pontos Simples</th><th>Pontos Duplas</th><th>Pontos Total</th></tr></thead><tbody id="masterBody"></tbody></table></div></section>
 <section class="section card athlete-template" id="participantes"><div class="head"><div><div class="eyebrow">04 · Atletas</div><h2>Atletas</h2></div></div><label class="athlete-label" for="playerName">Nome do atleta</label><input id="playerName" class="athlete-input" placeholder="Ex: Pedro"><button id="addPlayerBtn" class="athlete-add-btn">Adicionar atleta</button><div class="status athlete-status" id="playersStatus"></div><div class="players-list" id="playersList"></div></section>
