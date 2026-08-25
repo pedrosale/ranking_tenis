@@ -1,0 +1,62 @@
+name: Add Geral ranking share
+on:
+  push:
+    paths:
+      - '.github/workflows/add-general-ranking-share.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html'); t=p.read_text(encoding='utf-8')
+
+          # html2canvas
+          marker='<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">'
+          if 'html2canvas@1.4.1' not in t:
+              t=t.replace(marker,marker+'\n<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>',1)
+
+          # Compact button styling.
+          style='''\n.ranking-head-actions{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;justify-content:flex-end}.ranking-share-mini{width:auto!important;min-height:30px;padding:6px 10px!important;margin:0!important;border:1px solid rgba(217,184,120,.34)!important;border-radius:999px!important;background:rgba(217,184,120,.10)!important;color:var(--gold-soft)!important;font:800 10px Inter,Arial,sans-serif!important;letter-spacing:.03em;box-shadow:none!important;cursor:pointer;white-space:nowrap}.ranking-share-mini:active{transform:scale(.97)}@media(max-width:620px){.ranking-head-actions{width:100%;justify-content:space-between;align-items:center}.ranking-head-actions .note{max-width:72%}}\n'''
+          if '.ranking-share-mini{' not in t:
+              t=t.replace('</style>',style+'</style>',1)
+
+          old='<section class="section card" id="ranking"><div class="head"><div><div class="eyebrow">03 · Ranking</div><h2>Ranking atualizado · Geral</h2></div><div class="note">Pontos e games do Simples + Duplas. Match tie-break não entra no saldo de games.</div></div>'
+          new='<section class="section card" id="ranking"><div class="head"><div><div class="eyebrow">03 · Ranking</div><h2>Ranking atualizado · Geral</h2></div><div class="ranking-head-actions"><button class="ranking-share-mini" id="shareGeneralRankingBtn" type="button" aria-label="Compartilhar ranking geral como imagem">Compartilhar</button><div class="note">Pontos e games do Simples + Duplas. Match tie-break não entra no saldo de games.</div></div></div>'
+          if old not in t:
+              raise SystemExit('ranking header not found')
+          t=t.replace(old,new,1)
+
+          # Sharing function using the same approved preview structure and all Geral columns.
+          anchor='function renderAgenda()'
+          if 'async function shareGeneralRankingImage()' not in t:
+              fn=r'''async function shareGeneralRankingImage(){
+ const rows=combined();if(!rows.length)return alert('Ainda não há atletas no ranking.');
+ const esc=s=>String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
+ const now=new Date(),date=now.toLocaleDateString('pt-BR');
+ const node=document.createElement('section');
+ node.style.cssText='position:fixed;left:-10000px;top:0;width:1280px;padding:34px;color:#f4ead7;background:linear-gradient(145deg,#1b120e,#241710 55%,#13261c);border:1px solid rgba(217,184,120,.28);border-radius:30px;font-family:Inter,Arial,sans-serif;overflow:hidden;z-index:-1';
+ const grid='68px 1.35fr .62fr .62fr .62fr .8fr .8fr .8fr .82fr .82fr .9fr';
+ const head=['Posição','Atleta','Jogos','Vitórias','Derrotas','Games vencidos','Games sofridos','Saldo de games','Pontos Simples','Pontos Duplas','Pontos Total'];
+ const rowHtml=rows.map((x,i)=>`<div style="display:grid;grid-template-columns:${grid};align-items:center;min-height:52px;padding:0 14px;gap:6px;border-bottom:1px solid rgba(244,234,215,.08);font-size:12px;${i===0?'background:linear-gradient(90deg,rgba(217,184,120,.13),rgba(217,184,120,.02));':''}"><div style="font-family:Playfair Display,Georgia,serif;font-size:17px;${i===0?'color:#f2d79e':''}">${String(i+1).padStart(2,'0')}</div><div style="font-weight:800;${i===0?'color:#f2d79e':''}">${esc(x.player)}</div><div>${x.j}</div><div>${x.v}</div><div>${x.d}</div><div>${x.gv}</div><div>${x.gs}</div><div>${x.saldo}</div><div>${x.singlePts}</div><div>${x.doublePts}</div><div style="font-weight:900;${i===0?'color:#f2d79e':''}">${x.total}</div></div>`).join('');
+ node.innerHTML=`<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px"><div><div style="color:#d9b878;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:800">Segunda Sagrada · Temporada 2026</div><div style="font-family:Playfair Display,Georgia,serif;font-size:38px;line-height:1;margin:6px 0">Ranking · Geral</div><div style="color:rgba(244,234,215,.72);font-size:12px">Campanha combinada de Simples + Duplas</div></div><div style="font-size:11px;color:rgba(244,234,215,.48);text-align:right">Atualizado em<br><strong>${date}</strong></div></div><div style="border:1px solid rgba(244,234,215,.12);border-radius:20px;overflow:hidden;background:rgba(255,248,236,.035)"><div style="display:grid;grid-template-columns:${grid};align-items:center;min-height:50px;padding:0 14px;gap:6px;color:rgba(244,234,215,.48);font-size:8px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;background:rgba(255,248,236,.035)">${head.map(h=>`<div>${h}</div>`).join('')}</div>${rowHtml}</div><div style="display:flex;justify-content:space-between;gap:20px;margin-top:18px;color:rgba(244,234,215,.48);font-size:10px"><div>Critérios: pontos totais → saldo de games → confronto direto → número de vitórias → TBD.</div><div style="color:#d9b878;font-weight:800;text-transform:uppercase;letter-spacing:.1em">Segunda Sagrada</div></div>`;
+ document.body.appendChild(node);
+ const btn=document.getElementById('shareGeneralRankingBtn');const oldText=btn.textContent;btn.disabled=true;btn.textContent='Gerando…';
+ try{const canvas=await window.html2canvas(node,{scale:2,backgroundColor:null,useCORS:true,logging:false});const blob=await new Promise(r=>canvas.toBlob(r,'image/png',1));const file=new File([blob],'ranking-geral-segunda-sagrada.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Ranking Geral · Segunda Sagrada'});}else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}}catch(e){if(e?.name!=='AbortError'){console.error(e);alert('Não foi possível gerar a imagem neste navegador.')}}finally{node.remove();btn.disabled=false;btn.textContent=oldText}}
+const shareGeneralRankingBtn=document.getElementById('shareGeneralRankingBtn');if(shareGeneralRankingBtn)shareGeneralRankingBtn.onclick=shareGeneralRankingImage;
+'''
+              if anchor not in t: raise SystemExit('JS anchor not found')
+              t=t.replace(anchor,fn+anchor,1)
+
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'feat: share Geral ranking as WhatsApp image'
+          git push
