@@ -1,0 +1,68 @@
+name: Add verified Geral ranking share button v2
+on:
+  push:
+    paths:
+      - '.github/workflows/add-geral-share-button-v2.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          if 'id="shareGeneralRankingBtn"' in t:
+              raise SystemExit('share button already present')
+          old='<section class="section card" id="ranking"><div class="head"><div><div class="eyebrow">03 · Ranking</div><h2>Ranking atualizado · Geral</h2></div><div class="note">Pontos e games do Simples + Duplas. Match tie-break não entra no saldo de games.</div></div><div class="table-wrap">'
+          new='<section class="section card" id="ranking"><div class="head"><div><div class="eyebrow">03 · Ranking</div><h2>Ranking atualizado · Geral</h2></div><div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button id="shareGeneralRankingBtn" type="button" style="width:auto;min-height:32px;padding:7px 10px;border:1px solid rgba(217,184,120,.28);border-radius:999px;background:rgba(217,184,120,.08);color:inherit;font:800 11px Inter,Arial,sans-serif;cursor:pointer;white-space:nowrap">Compartilhar</button><div class="note">Pontos e games do Simples + Duplas. Match tie-break não entra no saldo de games.</div></div></div><div class="table-wrap">'
+          if old not in t:
+              raise SystemExit('ranking header target not found')
+          t=t.replace(old,new,1)
+          # html2canvas dependency
+          t=t.replace('</head>','<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>\n</head>',1)
+          # share function before loadConfig
+          marker='async function loadConfig()'
+          js=r'''async function shareGeneralRanking(){
+  const btn=document.getElementById('shareGeneralRankingBtn');
+  const rows=combined();
+  if(!rows.length){alert('Ainda não há ranking para compartilhar.');return}
+  const old=btn.textContent;btn.disabled=true;btn.textContent='Gerando...';
+  try{
+    const wrap=document.createElement('div');
+    wrap.style.cssText='position:fixed;left:-20000px;top:0;width:1280px;padding:34px;background:linear-gradient(145deg,#1b120e,#241710 55%,#13261c);color:#f4ead7;font-family:Inter,Arial,sans-serif;border-radius:30px;z-index:-1';
+    const today=new Date();const dd=String(today.getDate()).padStart(2,'0'),mm=String(today.getMonth()+1).padStart(2,'0'),yy=today.getFullYear();
+    const cells=rows.map((x,i)=>`<div style="display:grid;grid-template-columns:68px 1.35fr .62fr .62fr .62fr .8fr .8fr .8fr .82fr .82fr .9fr;align-items:center;min-height:52px;padding:0 14px;border-bottom:1px solid rgba(244,234,215,.08);font-size:12px;gap:6px;${i===0?'background:linear-gradient(90deg,rgba(217,184,120,.13),rgba(217,184,120,.02));':''}"><div style="font-family:Playfair Display,serif;font-size:17px">${String(i+1).padStart(2,'0')}</div><div style="font-weight:800">${x.player}</div><div>${x.j}</div><div>${x.v}</div><div>${x.d}</div><div>${x.gv}</div><div>${x.gs}</div><div>${x.saldo}</div><div>${x.singlePts}</div><div>${x.doublePts}</div><div style="font-weight:900">${x.total}</div></div>`).join('');
+    wrap.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px"><div><div style="color:#d9b878;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:800">Segunda Sagrada · Temporada 2026</div><div style="font-family:Playfair Display,serif;font-size:38px;line-height:1;margin:6px 0">Ranking · Geral</div><div style="color:rgba(244,234,215,.72);font-size:12px">Campanha combinada de Simples + Duplas</div></div><div style="font-size:11px;color:rgba(244,234,215,.48);text-align:right">Atualizado em<br><strong>${dd}/${mm}/${yy}</strong></div></div><div style="border:1px solid rgba(244,234,215,.12);border-radius:20px;overflow:hidden;background:rgba(255,248,236,.035)"><div style="display:grid;grid-template-columns:68px 1.35fr .62fr .62fr .62fr .8fr .8fr .8fr .82fr .82fr .9fr;align-items:center;min-height:50px;padding:0 14px;color:rgba(244,234,215,.48);font-size:8px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;gap:6px"><div>Posição</div><div>Atleta</div><div>Jogos</div><div>Vitórias</div><div>Derrotas</div><div>Games vencidos</div><div>Games sofridos</div><div>Saldo de games</div><div>Pontos Simples</div><div>Pontos Duplas</div><div>Pontos Total</div></div>${cells}</div><div style="display:flex;justify-content:space-between;margin-top:18px;color:rgba(244,234,215,.48);font-size:10px"><div>Critérios: pontos totais → saldo de games → confronto direto → número de vitórias → TBD.</div><div style="color:#d9b878;font-weight:800;letter-spacing:.1em;text-transform:uppercase">Segunda Sagrada</div></div>`;
+    document.body.appendChild(wrap);
+    await document.fonts.ready;
+    const canvas=await html2canvas(wrap,{scale:2,backgroundColor:null,useCORS:true,logging:false});
+    wrap.remove();
+    const blob=await new Promise(r=>canvas.toBlob(r,'image/png',1));
+    const file=new File([blob],'ranking-geral-segunda-sagrada.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Ranking Geral · Segunda Sagrada'})}
+    else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}
+  }catch(e){if(e&&e.name!=='AbortError'){console.error(e);alert('Não foi possível compartilhar a imagem neste navegador.')}}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+'''
+          if marker not in t: raise SystemExit('loadConfig marker not found')
+          t=t.replace(marker,js+marker,1)
+          # bind after declarations area, robust by appending before closing script
+          bind="\ndocument.getElementById('shareGeneralRankingBtn').onclick=shareGeneralRanking;\n"
+          idx=t.rfind('</script>')
+          if idx<0: raise SystemExit('script end not found')
+          t=t[:idx]+bind+t[idx:]
+          p.write_text(t,encoding='utf-8')
+          PY
+          grep -q 'id="shareGeneralRankingBtn"' master.html
+          grep -q 'shareGeneralRanking' master.html
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'feat: add share image button to Geral ranking'
+          git push
