@@ -1,0 +1,32 @@
+name: Add News button to Geral
+on:
+  push:
+    paths:
+      - '.github/workflows/add-news-button-general.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          old='    <a class="nav-pill" href="#sugestoes">Próximos jogos</a>\n'
+          new=old+'    <a class="nav-pill" href="./news.html">News</a>\n'
+          if './news.html' in t:
+              raise SystemExit('News button already present')
+          if old not in t:
+              raise SystemExit('Navigation marker not found')
+          t=t.replace(old,new,1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'feat: add News shortcut to Geral'
+          git push
