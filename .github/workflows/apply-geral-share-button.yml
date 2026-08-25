@@ -1,0 +1,36 @@
+name: Apply Geral share button
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-geral-share-button.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply share button
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          old='<section class="section card" id="ranking"><div class="head"><div><div class="eyebrow">03 · Ranking</div><h2>Ranking atualizado · Geral</h2></div><div class="note">Pontos e games do Simples + Duplas. Match tie-break não entra no saldo de games.</div></div>'
+          new='<section class="section card" id="ranking"><div class="head"><div><div class="eyebrow">03 · Ranking</div><h2>Ranking atualizado · Geral</h2></div><div style="display:flex;align-items:flex-start;gap:8px"><button id="shareGeralBtn" type="button" style="border:1px solid rgba(217,184,120,.35);background:rgba(217,184,120,.10);color:inherit;border-radius:999px;padding:7px 10px;font:700 10px Inter,Arial,sans-serif;white-space:nowrap;cursor:pointer">Compartilhar</button><div class="note">Pontos e games do Simples + Duplas. Match tie-break não entra no saldo de games.</div></div></div>'
+          assert old in t, 'ranking header not found'
+          t=t.replace(old,new,1)
+          marker="import{initializeApp}from'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';"
+          script="""const shareGeralBtn=document.getElementById('shareGeralBtn');if(shareGeralBtn)shareGeralBtn.addEventListener('click',async()=>{try{const table=document.querySelector('#ranking table');if(!table)return;const rows=[...table.querySelectorAll('tr')].map(tr=>[...tr.children].map(c=>c.textContent.trim()));const W=1600,pad=52,rowH=62,headH=160,H=headH+rows.length*rowH+80,canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;const x=canvas.getContext('2d');x.fillStyle='#1b120e';x.fillRect(0,0,W,H);x.fillStyle='#d9b878';x.font='700 22px Georgia';x.fillText('SEGUNDA SAGRADA · TEMPORADA 2026',pad,48);x.fillStyle='#f4ead7';x.font='700 46px Georgia';x.fillText('Ranking · Geral',pad,105);x.fillStyle='rgba(244,234,215,.65)';x.font='600 18px Arial';x.fillText('Campanha combinada de Simples + Duplas',pad,138);const widths=[100,240,100,100,100,145,145,145,145,145,145],sx=widths.reduce((a,b)=>a+b,0),scale=(W-pad*2)/sx;let y=headH;rows.forEach((r,ri)=>{let xx=pad;x.fillStyle=ri===0?'rgba(217,184,120,.13)':ri%2?'rgba(255,255,255,.025)':'rgba(255,255,255,.045)';x.fillRect(pad,y,W-pad*2,rowH-2);r.forEach((v,i)=>{x.fillStyle=ri===0?'rgba(244,234,215,.62)':'#f4ead7';x.font=ri===0?'700 13px Arial':'600 17px Arial';const max=widths[i]*scale-12;let txt=v;while(x.measureText(txt).width>max&&txt.length>3)txt=txt.slice(0,-2)+'…';x.fillText(txt,xx+6,y+37);xx+=widths[i]*scale});y+=rowH});x.fillStyle='rgba(244,234,215,.45)';x.font='600 14px Arial';x.fillText('Segunda Sagrada · Ranking Geral',pad,H-28);const blob=await new Promise(r=>canvas.toBlob(r,'image/png',1));const file=new File([blob],'ranking-geral-segunda-sagrada.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:'Ranking Geral · Segunda Sagrada'});else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}}catch(e){if(e?.name!=='AbortError')alert('Não foi possível compartilhar a imagem.')}});
+"""
+          assert marker in t, 'script marker not found'
+          t=t.replace(marker,marker+'\n'+script,1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git rm .github/workflows/apply-geral-share-button.yml
+          git commit -m 'feat: add compact Geral ranking share button'
+          git push
