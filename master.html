@@ -1,1 +1,36 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#17110d"><title>Segunda Sagrada · Geral</title><script>if(window.self===window.top){window.location.replace('./geral-preview.html?official=1');}else{document.documentElement.dataset.embedded='1';}</script><link rel="stylesheet" href="./master.css?v=20260824-modalities-space"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"></head><body><div style="min-height:100vh;display:grid;place-items:center;background:#17110d;color:#d9b878;font-family:Inter,system-ui,sans-serif">Abrindo Segunda Sagrada…</div></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17110d">
+<title>Segunda Sagrada · Geral</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="./master.css?v=20260824-modalities-space">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+.preview-app{padding-bottom:0;overflow:hidden;background:#17110d}
+.preview-kicker{display:flex;align-items:center;justify-content:center;gap:10px;margin:18px 14px 8px;color:var(--gold-soft);font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}
+.preview-kicker:before{content:"";width:8px;height:8px;flex:0 0 8px;border-radius:999px;background:#d9b878;box-shadow:0 0 0 6px rgba(217,184,120,.14);animation:generalPulse 1.25s ease-in-out infinite;transform-origin:center}
+@keyframes generalPulse{0%,100%{transform:scale(.82);box-shadow:0 0 0 4px rgba(217,184,120,.10);opacity:.55}50%{transform:scale(1.28);box-shadow:0 0 0 9px rgba(217,184,120,.08),0 0 18px rgba(217,184,120,.65);opacity:1}}
+.court-portal{position:relative;margin:clamp(8px,2vw,20px) clamp(14px,2.4vw,28px) 0;border-radius:30px;overflow:hidden;border:1px solid rgba(217,184,120,.24);background:#17110d;box-shadow:0 22px 60px rgba(0,0,0,.22);isolation:isolate}
+.court-crop{position:relative;overflow:hidden;width:100%;background:#17110d}
+.court-art{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;mix-blend-mode:screen;opacity:.92;filter:contrast(1.08) saturate(.96) brightness(.92)}
+.court-crop:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(23,17,13,.01) 0%,rgba(23,17,13,0) 78%,rgba(23,17,13,.12) 94%,rgba(23,17,13,.34) 100%);mix-blend-mode:multiply}
+.court-link{position:absolute;z-index:5;top:14%;bottom:1%;display:block;-webkit-tap-highlight-color:transparent;touch-action:manipulation}.court-link.single{left:0;width:50%}.court-link.doubles{right:0;width:50%}.court-link:focus-visible{outline:3px solid var(--gold);outline-offset:-5px}
+.court-transition{height:46px;margin-top:-12px;position:relative;z-index:6;pointer-events:none;background:linear-gradient(180deg,rgba(23,17,13,0),rgba(23,17,13,.30) 52%,#17110d 100%)}
+.master-frame{display:block;width:100%;border:0;background:transparent;min-height:3200px;overflow:hidden}
+@media(max-width:520px){.preview-kicker{margin-top:12px}.court-portal{margin:7px 7px 0;border-radius:24px}.court-transition{height:40px;margin-top:-8px}.master-frame{min-height:4200px}}
+</style>
+</head>
+<body><div class="app preview-app">
+<div class="preview-kicker">Segunda Sagrada · Temporada 2026</div>
+<section class="court-portal" aria-label="Escolha a modalidade"><div class="court-crop" id="courtCrop"><img id="courtArt" class="court-art" alt="Segunda Sagrada — Simples e Duplas"><a class="court-link single" href="./index.html" aria-label="Entrar no Simples"></a><a class="court-link doubles" href="./duplas.html" aria-label="Entrar no Duplas"></a></div></section>
+<div class="court-transition"></div><iframe id="masterFrame" class="master-frame" src="./geral-content.html?v=official1" title="Visão Geral" scrolling="no"></iframe></div>
+<script>
+const art=document.getElementById('courtArt'),crop=document.getElementById('courtCrop');art.onload=()=>{const fit=()=>crop.style.height=(art.getBoundingClientRect().width*.765)+'px';fit();addEventListener('resize',fit)};art.src='https://wnlqmlhmbiboedxhquvf.supabase.co/storage/v1/object/public/assets/segunda-sagrada-geral.png?v=1';
+const frame=document.getElementById('masterFrame');frame.onload=()=>{try{const d=frame.contentDocument,style=d.createElement('style');style.textContent=`html,body{background:transparent!important;overflow:hidden!important}body:before,body:after{display:none!important}.app{width:100%!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;backdrop-filter:none!important;padding-bottom:0!important}.kicker,.hero>h1,.hero-modalities{display:none!important}.hero{padding-top:10px!important;margin:0!important;border-top:0!important;background:transparent!important}.hero:after{display:none!important}.hero-side{margin-top:6px!important}.header-actions .nav-pill[href="#modalidades"]{display:none!important}.court-motto strong{font-size:0!important}.court-motto strong:after{content:'Visão Geral';font-size:clamp(24px,4vw,36px)!important}.court-motto span{display:none!important}`;d.head.appendChild(style);const fit=()=>frame.style.height=Math.max(d.documentElement.scrollHeight,d.body.scrollHeight)+'px';fit();new ResizeObserver(fit).observe(d.body)}catch(e){console.error(e)}};
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+</script></body></html>
