@@ -1,0 +1,60 @@
+name: Update singles scoring cap and tiebreak
+on:
+  push:
+    paths:
+      - '.github/workflows/update-singles-scoring-cap-tiebreak.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p=Path('index.html'); t=p.read_text(encoding='utf-8')
+
+          old='const validScore=winnerScore===8&&loserScore>=0&&loserScore<=7;if(!validScore)return alert("Placar inválido. Use 8x0 até 8x6 ou 8x7 em caso de tie-break.");'
+          new='const validScore=(winnerScore===8&&loserScore>=0&&loserScore<=6)||(winnerScore===9&&(loserScore===7||loserScore===8));if(!validScore)return alert("Placar inválido. Use 8x0 até 8x6, 9x7 ou 9x8 após tie-break.");'
+          if old not in t: raise SystemExit('single validation block not found')
+          t=t.replace(old,new,1)
+
+          old='if(match.scoreA>match.scoreB){A.vitorias++;B.derrotas++;A.pontos+=10+match.scoreA;B.pontos+=6+match.scoreB}else{B.vitorias++;A.derrotas++;B.pontos+=10+match.scoreB;A.pontos+=6+match.scoreA}'
+          new='if(match.scoreA>match.scoreB){A.vitorias++;B.derrotas++;A.pontos+=10+Math.min(8,match.scoreA);B.pontos+=6+Math.min(8,match.scoreB)}else{B.vitorias++;A.derrotas++;B.pontos+=10+Math.min(8,match.scoreB);A.pontos+=6+Math.min(8,match.scoreA)}'
+          if old not in t: raise SystemExit('single scoring block not found')
+          t=t.replace(old,new,1)
+
+          marker='function calculateRanking(){'
+          helper='function directHeadToHead(a,b){const m=state.matches.find(x=>(x.playerA===a&&x.playerB===b)||(x.playerA===b&&x.playerB===a));if(!m)return 0;if(m.winner===a)return -1;if(m.winner===b)return 1;return 0}\n'
+          if helper.strip() not in t:
+              if marker not in t: raise SystemExit('calculateRanking marker not found')
+              t=t.replace(marker,helper+marker,1)
+
+          old='return Object.values(table).sort((a,b)=>b.pontos-a.pontos||b.saldo-a.saldo||b.vitorias-a.vitorias||a.player.localeCompare(b.player))'
+          new='return Object.values(table).sort((a,b)=>b.pontos-a.pontos||b.saldo-a.saldo||directHeadToHead(a.player,b.player)||b.vitorias-a.vitorias||a.player.localeCompare(b.player))'
+          if old not in t: raise SystemExit('single ranking comparator not found')
+          t=t.replace(old,new,1)
+
+          t=t.replace('Cada game vencido vale ponto. Em empate na pontuação, o saldo de games é o primeiro critério de desempate.','Cada game vencido vale ponto, com máximo de 8 games pontuáveis por atleta na partida. Em empate na pontuação, o saldo de games é o primeiro critério de desempate.',1)
+          t=t.replace('Recebe 10 pontos de base + 1 ponto por game vencido. Como toda vitória termina em 8, o vencedor recebe 18 pontos.','Recebe 10 pontos de base + 1 ponto por game vencido, limitado a 8 games pontuáveis. Assim, 8x6, 9x7 e 9x8 dão 18 pontos ao vencedor.',1)
+          t=t.replace('Recebe 6 pontos de base + 1 ponto por game vencido. Ex.: em 8x6, a pontuação é 18 x 12.','Recebe 6 pontos de base + 1 ponto por game vencido, limitado a 8 games pontuáveis. Em 9x7 recebe 13 pontos; em 9x8 recebe 14.',1)
+          t=t.replace('Resultados válidos: 8x0 a 8x6 ou 8x7. Em 7x7, joga-se o tie-break e o placar final é 8x7. Não existe 9x7.','Resultados válidos: 8x0 a 8x6. Em 7x7, segue-se até 9x7; se chegar a 8x8, joga-se o tie-break e registra-se 9x8.',1)
+          t=t.replace('Em empate de pontos: maior saldo de games; depois, maior número de vitórias e, por fim, ordem alfabética.','Em empate de pontos: 1) saldo de games; 2) confronto direto; 3) número de vitórias; 4) TBD.',1)
+          p.write_text(t,encoding='utf-8')
+
+          # Geral: mantém a pontuação de Simples coerente com o ranking de Simples.
+          p=Path('master.html'); t=p.read_text(encoding='utf-8')
+          old='if(sa>sb){A.v++;B.d++;A.singlePts+=10+sa;B.singlePts+=6+sb}else{B.v++;A.d++;B.singlePts+=10+sb;A.singlePts+=6+sa}'
+          new='if(sa>sb){A.v++;B.d++;A.singlePts+=10+Math.min(8,sa);B.singlePts+=6+Math.min(8,sb)}else{B.v++;A.d++;B.singlePts+=10+Math.min(8,sb);A.singlePts+=6+Math.min(8,sa)}'
+          if old not in t: raise SystemExit('master single scoring block not found')
+          t=t.replace(old,new,1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html master.html
+          git commit -m 'feat: update singles scoring and tiebreak rules'
+          git push
