@@ -1,0 +1,33 @@
+name: Lift News above Visao Geral
+on:
+  push:
+    paths:
+      - '.github/workflows/lift-news-above-overview.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html'); t=p.read_text(encoding='utf-8')
+          block='''<a class="news-feature" href="./news.html" aria-label="Abrir News da Segunda Sagrada">
+  <span class="news-feature-copy"><span class="news-feature-kicker">News · Arquivo da temporada</span><span class="news-feature-title">Segunda Sagrada News</span><span class="news-feature-sub">Capas, resenhas e momentos da temporada.</span></span><span class="news-feature-arrow" aria-hidden="true">→</span>
+</a>
+'''
+          if block not in t: raise SystemExit('News block not found')
+          t=t.replace(block,'',1)
+          marker='<section class="hero integrated-hero">'
+          if marker not in t: raise SystemExit('Visao Geral marker not found')
+          t=t.replace(marker,block+marker,1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'ui: move News above Visao Geral'
+          git push
