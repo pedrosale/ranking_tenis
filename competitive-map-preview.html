@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17110d">
+<title>Segunda Sagrada · Preview Mapa Competitivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#17110d;--cream:#f4ead7;--muted:rgba(244,234,215,.64);--gold:#d9b878;--line:rgba(244,234,215,.18);--clay:#a85432;--clay2:#8f4329;--green:#2f7b50;--blue:#4f8dcc}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 15% 8%,rgba(191,113,74,.24),transparent 30%),linear-gradient(145deg,#17110d,#241611 55%,#102419);color:var(--cream)}
+body{padding:18px}.app{width:min(1100px,100%);margin:0 auto;border:1px solid var(--line);border-radius:28px;background:rgba(20,13,10,.56);box-shadow:0 28px 90px rgba(0,0,0,.38);overflow:hidden}
+.header{padding:24px 24px 18px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.17em;text-transform:uppercase;font-weight:800}.header h1{margin:7px 0 6px;font-family:"Playfair Display",Georgia,serif;font-size:clamp(28px,5vw,48px);line-height:1}.header p{margin:0;color:var(--muted);font-size:13px;line-height:1.55;max-width:760px}.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.pill{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:11px;color:var(--muted)}
+.stage{padding:0 18px 22px}.court-shell{position:relative;border-radius:24px;padding:18px;background:linear-gradient(135deg,#6f311e,#b9653f 50%,#8f4329);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 18px 50px rgba(0,0,0,.25);overflow:hidden}.court-shell:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 25%,rgba(255,255,255,.05),transparent 18%),radial-gradient(circle at 75% 70%,rgba(0,0,0,.08),transparent 25%),repeating-linear-gradient(12deg,rgba(255,255,255,.018) 0 1px,transparent 1px 7px);pointer-events:none}.court{position:relative;aspect-ratio:1.58/1;min-height:390px;border:3px solid rgba(255,250,240,.94);background:rgba(142,65,40,.28)}
+.court .mid-v,.court .service-v,.court .service-h,.court .singles-l,.court .singles-r{position:absolute;background:rgba(255,250,240,.93)}.mid-v{top:0;bottom:0;left:50%;width:3px;transform:translateX(-50%)}.service-v{top:18%;bottom:18%;left:50%;width:2px;transform:translateX(-50%)}.service-h{left:18%;right:18%;top:50%;height:2px;transform:translateY(-50%)}.singles-l{top:0;bottom:0;left:12%;width:2px}.singles-r{top:0;bottom:0;right:12%;width:2px}
+.axis-x,.axis-y{position:absolute;z-index:7;font-size:11px;font-weight:800;letter-spacing:.04em;color:#fff8ec;text-shadow:0 2px 4px rgba(0,0,0,.55)}.axis-x{left:50%;bottom:8px;transform:translateX(-50%)}.axis-y{left:8px;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:left top}.axis-good-x{position:absolute;right:10px;bottom:8px;z-index:7;color:#fff8ec;font-size:10px;font-weight:800}.axis-good-y{position:absolute;left:10px;top:8px;z-index:7;color:#fff8ec;font-size:10px;font-weight:800}
+.zone{position:absolute;z-index:2;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,248,236,.48)}.zone.tl{top:12px;left:26px}.zone.tr{top:12px;right:26px}.zone.bl{bottom:24px;left:26px}.zone.br{bottom:24px;right:26px}
+.player{position:absolute;z-index:9;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;white-space:nowrap}.dot{width:14px;height:14px;border-radius:50%;background:#f8e4a8;border:2px solid #2b160f;box-shadow:0 0 0 3px rgba(255,248,236,.20),0 4px 10px rgba(0,0,0,.35);flex:0 0 14px}.name{padding:4px 7px;border-radius:999px;background:rgba(23,17,13,.82);border:1px solid rgba(255,248,236,.22);font-size:11px;font-weight:800;color:#fff8ec;box-shadow:0 4px 12px rgba(0,0,0,.22)}.pos{display:block;font-size:9px;color:rgba(244,234,215,.66);font-weight:600;margin-top:1px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.card{border:1px solid var(--line);border-radius:16px;padding:13px;background:rgba(255,255,255,.035)}.card strong{display:block;font-size:12px}.card span{display:block;margin-top:4px;color:var(--muted);font-size:11px;line-height:1.45}
+.note{padding:0 24px 24px;color:rgba(244,234,215,.48);font-size:11px;line-height:1.5}
+@media(max-width:720px){body{padding:8px}.app{border-radius:22px}.header{padding:20px 16px 14px}.stage{padding:0 10px 14px}.court-shell{padding:10px;border-radius:18px;overflow-x:auto}.court{min-width:700px;min-height:440px}.cards{grid-template-columns:1fr}.note{padding:0 16px 18px}.player .name{font-size:10px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="eyebrow">Preview · Geral</div>
+    <h1>Mapa competitivo</h1>
+    <p>Posição no ranking de Simples × posição no ranking de Duplas. Dados abaixo são simulados apenas para validar a comunicação visual. Quanto mais para cima, melhor no Simples; quanto mais para a direita, melhor em Duplas.</p>
+    <div class="legend"><span class="pill">Vertical · Simples</span><span class="pill">Horizontal · Duplas</span><span class="pill">1º lugar = melhor posição</span></div>
+  </header>
+  <section class="stage">
+    <div class="court-shell">
+      <div class="court" id="court">
+        <div class="mid-v"></div><div class="service-v"></div><div class="service-h"></div><div class="singles-l"></div><div class="singles-r"></div>
+        <div class="zone tl">Mais forte em Simples</div><div class="zone tr">Destaque nas duas</div><div class="zone bl">Em busca de posições</div><div class="zone br">Mais forte em Duplas</div>
+        <div class="axis-x">posição em Duplas →</div><div class="axis-y">posição em Simples →</div><div class="axis-good-x">1º →</div><div class="axis-good-y">↑ 1º</div>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card"><strong>Leitura imediata</strong><span>O canto superior direito concentra atletas bem posicionados nas duas modalidades.</span></div>
+      <div class="card"><strong>Sem distorção de pontos</strong><span>O gráfico usa posições, então Duplas não pesa mais apenas por distribuir mais pontos.</span></div>
+      <div class="card"><strong>Complementar ao Geral</strong><span>O ranking oficial continua por pontos. Aqui mostramos o perfil competitivo entre modalidades.</span></div>
+    </div>
+  </section>
+  <div class="note">Simulação: Ale S1/D4 · Pedro S2/D2 · Guedes S3/D6 · Marcel S4/D8 · Fabio S5/D3 · João S6/D5 · Murillo S7/D1 · Irineu S8/D7 · Serginho S9/D9 · Wagner S10/D10.</div>
+</div>
+<script>
+const players=[
+{name:'Ale',s:1,d:4},{name:'Pedro',s:2,d:2},{name:'Guedes',s:3,d:6},{name:'Marcel',s:4,d:8},{name:'Fabio',s:5,d:3},{name:'João',s:6,d:5},{name:'Murillo',s:7,d:1},{name:'Irineu',s:8,d:7},{name:'Serginho',s:9,d:9},{name:'Wagner',s:10,d:10}
+];
+const court=document.getElementById('court');
+const pct=v=>10+((10-v)/9)*80;
+players.forEach(p=>{const el=document.createElement('div');el.className='player';el.style.left=pct(p.d)+'%';el.style.top=(100-pct(p.s))+'%';el.innerHTML=`<span class="dot"></span><span class="name">${p.name}<span class="pos">S ${p.s}º · D ${p.d}º</span></span>`;court.appendChild(el)});
+</script>
+</body>
+</html>
