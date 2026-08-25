@@ -1,0 +1,33 @@
+name: Padroniza titulos de ranking
+on:
+  push:
+    paths:
+      - '.github/workflows/padroniza-ranking-titulos.yml'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Atualizar titulos
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          changes = {
+              'index.html': ('<h2>Ranking atualizado</h2>', '<h2>Ranking atualizado · Simples</h2>'),
+              'master.html': ('<h2>Campanha combinada</h2>', '<h2>Ranking atualizado · Geral</h2>'),
+          }
+          for name, (old, new) in changes.items():
+              p = Path(name)
+              text = p.read_text(encoding='utf-8')
+              if old not in text:
+                  raise SystemExit(f'Texto esperado não encontrado em {name}: {old}')
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+          Path('.github/workflows/padroniza-ranking-titulos.yml').unlink()
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html master.html .github/workflows/padroniza-ranking-titulos.yml
+          git commit -m 'Padroniza títulos dos rankings Geral e Simples'
+          git push
