@@ -13,55 +13,38 @@ jobs:
       - run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
-          p=Path('duplas.html'); t=p.read_text(encoding='utf-8')
+          p=Path('duplas.html')
+          t=p.read_text(encoding='utf-8')
 
-          # Cap each normal set at six games for scoring and game balance.
-          t2,n=re.subn(
-            r"gamesA=m\.s1a\+m\.s2a,gamesB=m\.s1b\+m\.s2b,pointsWin=10\+\(m\.winnerSide==='A'\?gamesA:gamesB\),pointsLose=6\+\(m\.winnerSide==='A'\?gamesB:gamesA\)",
-            "gamesA=Math.min(6,+m.s1a)+Math.min(6,+m.s2a),gamesB=Math.min(6,+m.s1b)+Math.min(6,+m.s2b),pointsWin=10+(m.winnerSide==='A'?gamesA:gamesB),pointsLose=6+(m.winnerSide==='A'?gamesB:gamesA)",t,count=1)
-          if n!=1: raise SystemExit('duplas scoring expression not found')
-          t=t2
-
-          # Existing ranking uses athlete key `name`; add direct head-to-head before wins.
-          helper="""function directHeadToHead(aName,bName){let a=0,b=0;for(const m of playedMatches()){const as=m.a.includes(aName)?'A':(m.b.includes(aName)?'B':null),bs=m.a.includes(bName)?'A':(m.b.includes(bName)?'B':null);if(!as||!bs||as===bs)continue;if(m.winnerSide===as)a++;else if(m.winnerSide===bs)b++;}return a-b;}\n"""
-          if 'function directHeadToHead(' not in t:
-            marker='function renderRanking'
-            if marker not in t: raise SystemExit('renderRanking not found')
-            t=t.replace(marker,helper+marker,1)
-
-          # Match actual compact comparator variants.
-          patterns=[
-            (r"b\.pts-a\.pts\|\|b\.saldo-a\.saldo\|\|b\.wins-a\.wins\|\|a\.name\.localeCompare\(b\.name\)","b.pts-a.pts||b.saldo-a.saldo||-directHeadToHead(a.name,b.name)||b.wins-a.wins||a.name.localeCompare(b.name)"),
-            (r"b\.pontos-a\.pontos\|\|b\.saldo-a\.saldo\|\|b\.vitorias-a\.vitorias\|\|a\.nome\.localeCompare\(b\.nome\)","b.pontos-a.pontos||b.saldo-a.saldo||-directHeadToHead(a.nome,b.nome)||b.vitorias-a.vitorias||a.nome.localeCompare(b.nome)")]
-          changed=False
-          for pat,repl in patterns:
-            t2,n=re.subn(pat,repl,t,count=1)
-            if n: t=t2;changed=True;break
-          if not changed: raise SystemExit('ranking comparator not found')
-
-          old='Cada atleta da dupla vencedora recebe 10 pontos de base + 1 ponto por game vencido pela dupla nos sets.'
-          new=old[:-1]+', com máximo de 6 games pontuáveis por set.'
-          if old in t:t=t.replace(old,new,1)
-          old='Cada atleta da dupla perdedora recebe 6 pontos de base + 1 ponto por game vencido pela dupla nos sets. O match tie-break decide a partida, mas seus pontos não contam como games.'
-          new='Cada atleta da dupla perdedora recebe 6 pontos de base + 1 ponto por game vencido pela dupla nos sets, com máximo de 6 games pontuáveis por set. O match tie-break decide a partida, mas seus pontos não contam como games.'
-          if old in t:t=t.replace(old,new,1)
-          old='Saldo de games dos sets, depois vitórias e ordem alfabética. Pontos do match tie-break não entram no saldo nem na pontuação por games.'
-          new='Em empate de pontos: saldo de games; depois confronto direto; depois número de vitórias; e, por fim, critério TBD. O match tie-break não entra no saldo nem na pontuação por games.'
-          if old not in t: raise SystemExit('rule text not found')
-          t=t.replace(old,new,1)
+          replacements=[
+          ('<input id="s1a" type="number" min="0" max="6"><input id="s1b" type="number" min="0" max="6">','<input id="s1a" type="number" min="0" max="7"><input id="s1b" type="number" min="0" max="7">'),
+          ('<input id="s2a" type="number" min="0" max="6"><input id="s2b" type="number" min="0" max="6">','<input id="s2a" type="number" min="0" max="7"><input id="s2b" type="number" min="0" max="7">'),
+          ('function validSet(a,b){const hi=Math.max(a,b),lo=Math.min(a,b);return hi===6&&lo<=5}','function validSet(a,b){const hi=Math.max(a,b),lo=Math.min(a,b);return (hi===6&&lo<=4)||(hi===7&&(lo===5||lo===6))}'),
+          ("gamesA=m.s1a+m.s2a,gamesB=m.s1b+m.s2b,pointsWin=10+(m.winnerSide==='A'?gamesA:gamesB),pointsLose=6+(m.winnerSide==='A'?gamesB:gamesA)","gamesA=Math.min(6,+m.s1a)+Math.min(6,+m.s2a),gamesB=Math.min(6,+m.s1b)+Math.min(6,+m.s2b),pointsWin=10+(m.winnerSide==='A'?gamesA:gamesB),pointsLose=6+(m.winnerSide==='A'?gamesB:gamesA)"),
+          ('function render(){','function directHeadToHead(aName,bName){let a=0,b=0;for(const m of doubles.matches||[]){if(!Array.isArray(m.a)||!Array.isArray(m.b))continue;const as=m.a.includes(aName)?\'A\':(m.b.includes(aName)?\'B\':null),bs=m.a.includes(bName)?\'A\':(m.b.includes(bName)?\'B\':null);if(!as||!bs||as===bs)continue;if(m.winnerSide===as)a++;else if(m.winnerSide===bs)b++;}return a-b}\nfunction render(){'),
+          ('return Object.values(t).sort((a,b)=>b.pts-a.pts||b.saldo-a.saldo||b.v-a.v||a.player.localeCompare(b.player))','return Object.values(t).sort((a,b)=>b.pts-a.pts||b.saldo-a.saldo||-directHeadToHead(a.player,b.player)||b.v-a.v||a.player.localeCompare(b.player))'),
+          ('Cada atleta da dupla vencedora recebe 10 pontos de base + 1 ponto por game vencido pela dupla nos sets.','Cada atleta da dupla vencedora recebe 10 pontos de base + 1 ponto por game vencido pela dupla nos sets, com máximo de 6 games pontuáveis por set. O placar real é preservado.'),
+          ('Cada atleta da dupla perdedora recebe 6 pontos de base + 1 ponto por game vencido pela dupla nos sets. Chegando a 5×5, joga-se o tie-break e registra-se 6×5; 7×5 e 7×6 não são permitidos. Se ficar 1×1 em sets, o match tie-break decide a partida, mas seus pontos não contam como games.','Cada atleta da dupla perdedora recebe 6 pontos de base + 1 ponto por game vencido pela dupla nos sets, com máximo de 6 games pontuáveis por set. Assim, 7×5 pontua como 6×5 e 7×6 pontua como 6×6. Se ficar 1×1 em sets, o match tie-break decide a partida, mas seus pontos não contam como games.'),
+          ('Saldo de games dos sets, depois vitórias e ordem alfabética. Tie-breaks apenas decidem o set ou a partida: seus pontos não entram no saldo nem na pontuação por games.','Em empate de pontos: 1) saldo de games; 2) confronto direto; 3) número de vitórias; 4) TBD. O match tie-break não entra no saldo nem na pontuação por games.'),
+          ("return alert('Set inválido. Use 6-0 a 6-4; chegando a 5-5, jogue o tie-break e registre 6-5 para o vencedor. Não são aceitos 7-5 ou 7-6.')","return alert('Set inválido. Use 6-0 a 6-4, 7-5 ou 7-6. Para pontuação, cada lado fica limitado a 6 games por set.')")
+          ]
+          for old,new in replacements:
+              if old not in t: raise SystemExit('Trecho não encontrado: '+old[:100])
+              t=t.replace(old,new,1)
           p.write_text(t,encoding='utf-8')
 
-          # Keep Geral's doubles calculation identical.
-          p=Path('master.html'); t=p.read_text(encoding='utf-8')
-          t2,n=re.subn(r"ga=\+m\.s1a \+ \+m\.s2a,gb=\+m\.s1b \+ \+m\.s2b,wp=10\+\(m\.winnerSide==='A'\?ga:gb\),lp=6\+\(m\.winnerSide==='A'\?gb:ga\)","ga=Math.min(6,+m.s1a)+Math.min(6,+m.s2a),gb=Math.min(6,+m.s1b)+Math.min(6,+m.s2b),wp=10+(m.winnerSide==='A'?ga:gb),lp=6+(m.winnerSide==='A'?gb:ga)",t,count=1)
-          if n!=1: raise SystemExit('master doubles scoring expression not found')
-          p.write_text(t2,encoding='utf-8')
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          old="ga=+m.s1a + +m.s2a,gb=+m.s1b + +m.s2b,wp=10+(m.winnerSide==='A'?ga:gb),lp=6+(m.winnerSide==='A'?gb:ga)"
+          new="ga=Math.min(6,+m.s1a)+Math.min(6,+m.s2a),gb=Math.min(6,+m.s1b)+Math.min(6,+m.s2b),wp=10+(m.winnerSide==='A'?ga:gb),lp=6+(m.winnerSide==='A'?gb:ga)"
+          if old not in t: raise SystemExit('Trecho do Geral não encontrado')
+          t=t.replace(old,new,1)
+          p.write_text(t,encoding='utf-8')
           PY
           git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add duplas.html master.html
-          git commit -m 'feat: cap doubles game points and revise tiebreaks'
+          git commit -m 'feat: update doubles scoring and tiebreak rules'
           git push
