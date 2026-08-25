@@ -1,0 +1,34 @@
+name: Move News into highlighted Geral card
+on:
+  push:
+    paths:
+      - '.github/workflows/move-news-highlight.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          t=p.read_text(encoding='utf-8')
+          t=t.replace('    <a class="nav-pill" href="./news.html">News</a>\n','',1)
+          css='''\n.news-feature{margin:6px 0 20px;text-decoration:none;color:inherit;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;border:1px solid rgba(217,184,120,.48);border-radius:20px;background:linear-gradient(135deg,rgba(217,184,120,.14),rgba(217,184,120,.035));box-shadow:0 10px 30px rgba(0,0,0,.12);transition:transform .18s ease,border-color .18s ease,background .18s ease}\n.news-feature:hover{transform:translateY(-1px);border-color:rgba(217,184,120,.72);background:linear-gradient(135deg,rgba(217,184,120,.19),rgba(217,184,120,.05))}\n.news-feature-copy{display:flex;flex-direction:column;gap:4px}.news-feature-kicker{color:var(--gold-soft);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}.news-feature-title{font-family:'Playfair Display',serif;font-size:clamp(20px,3vw,27px);font-weight:700}.news-feature-sub{font-size:13px;opacity:.72;line-height:1.45}.news-feature-arrow{font-size:25px;color:var(--gold-soft);flex:0 0 auto}\n@media(max-width:520px){.news-feature{padding:16px 17px;margin-bottom:18px}.news-feature-sub{font-size:12px}}\n'''
+          if '.news-feature{' not in t:
+              t=t.replace('</style>',css+'</style>',1)
+          card='''<a class="news-feature" href="./news.html" aria-label="Abrir News da Segunda Sagrada">\n  <span class="news-feature-copy"><span class="news-feature-kicker">News · Arquivo da temporada</span><span class="news-feature-title">Segunda Sagrada News</span><span class="news-feature-sub">Capas, resenhas e momentos da temporada.</span></span><span class="news-feature-arrow" aria-hidden="true">→</span>\n</a>\n'''
+          marker='<section class="section leader-grid">'
+          if marker not in t: raise SystemExit('leader grid marker not found')
+          if 'class="news-feature"' not in t:
+              t=t.replace(marker,card+marker,1)
+          p.write_text(t,encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'feat: highlight News above Geral summary'
+          git push
