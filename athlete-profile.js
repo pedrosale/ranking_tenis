@@ -5,7 +5,7 @@ const DOUBLES_TEMPLATE=[[[0,2],[7,8]],[[0,3],[2,7]],[[0,4],[6,9]],[[0,5],[6,8]],
 let state={players:[],schedule:[],matches:[],availability:{},doublesMatches:[]};
 let activePlayer=null;
 
-const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt',"'":'&#39;','"':'&quot;'}[c]));
 const fmtScore=m=>`${m.scoreA}×${m.scoreB}`;
 const fmtDoubles=m=>`${m.s1a}×${m.s1b} · ${m.s2a}×${m.s2b}${m.decidedByTB?` · MTB ${m.tba}×${m.tbb}`:''}`;
 
@@ -44,3 +44,5 @@ function observeRanking(){const body=document.getElementById('masterBody');if(!b
 async function loadConfig(){const html=await fetch('./index.html',{cache:'no-store'}).then(r=>r.text());const keys=['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId','measurementId'],cfg={};for(const key of keys){const m=html.match(new RegExp(key+'\\s*:\\s*["\\\']([^"\\\']+)["\\\']'));if(m)cfg[key]=m[1]}if(!cfg.projectId)throw new Error('Configuração não encontrada');return cfg}
 ensureUI();observeRanking();
 try{const cfg=await loadConfig(),app=initializeApp(cfg,'athlete-profile-view'),db=getFirestore(app);onSnapshot(doc(db,'tennisRanking','main'),s=>{state=s.exists()?s.data():state;state.players=state.players||[];state.schedule=state.schedule||[];state.matches=state.matches||[];state.doublesMatches=state.doublesMatches||[];wireRanking()})}catch(e){console.error('Perfil de atleta indisponível:',e)}
+
+import './athlete-profile-share.js?v=20260826-1';
