@@ -1,2 +1,35 @@
 @import url('./master-stable-base.css?v=20260824-stable');
 .hero{display:flex!important;flex-direction:column!important;align-items:stretch!important;padding:18px 20px 26px!important;background:linear-gradient(180deg,rgba(112,78,56,.18),rgba(74,49,35,.10))!important;border-bottom:1px solid var(--line)!important;overflow:hidden!important}.hero:after{display:none!important}.kicker{align-self:center!important;margin:0 0 10px!important}.hero>h1,.hero>p{display:none!important}.court-motto{order:3!important;margin:16px 0 0!important;padding:12px 18px!important;align-self:flex-start!important}.court-motto strong{font-size:0!important}.court-motto strong:after{content:'Visão Geral';font-size:clamp(24px,4vw,36px)!important}.court-motto span{display:none!important}.header-actions{order:1!important;margin:0 0 16px!important;padding:0!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important}.header-actions .nav-pill[href="#modalidades"]{display:none!important}.header-actions .nav-pill[href="#ranking"]{order:-1!important;flex:0 0 100%!important;min-height:72px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;padding:17px 20px!important;border:1px solid rgba(217,184,120,.48)!important;border-radius:20px!important;background:linear-gradient(135deg,rgba(217,184,120,.14),rgba(217,184,120,.035))!important;box-shadow:0 10px 30px rgba(0,0,0,.12)!important;color:inherit!important;text-decoration:none!important;font-size:0!important;transition:transform .18s ease,border-color .18s ease,background .18s ease!important}.header-actions .nav-pill[href="#ranking"]:before{content:'Ranking Geral';font-family:'Playfair Display',serif!important;font-size:clamp(20px,3vw,27px)!important;font-weight:700!important;line-height:1.1!important;color:var(--cream)!important}.header-actions .nav-pill[href="#ranking"]:after{content:'↓';font-family:Inter,Arial,sans-serif!important;font-size:25px!important;font-weight:600!important;color:var(--gold-soft)!important;line-height:1!important}.header-actions .nav-pill[href="#ranking"]:hover{transform:translateY(-1px)!important;border-color:rgba(217,184,120,.72)!important;background:linear-gradient(135deg,rgba(217,184,120,.19),rgba(217,184,120,.05))!important}.hero-side{order:2!important;display:flex!important;flex-direction:column!important;gap:16px!important;margin:0!important}.hero-modalities{order:1!important;position:relative!important;width:100%!important;aspect-ratio:1.307/1!important;min-height:0!important;padding:0!important;border:1px solid rgba(217,184,120,.24)!important;border-radius:30px!important;overflow:hidden!important;background-color:#523a2d!important;background-image:url('https://wnlqmlhmbiboedxhquvf.supabase.co/storage/v1/object/public/assets/segunda-sagrada-geral.png?v=1')!important;background-position:center top!important;background-size:100% auto!important;background-repeat:no-repeat!important;background-blend-mode:screen!important;box-shadow:0 18px 48px rgba(0,0,0,.18)!important;isolation:isolate!important}.hero-modalities:before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(94,66,49,.10) 0%,rgba(79,55,42,.04) 62%,rgba(63,43,33,.18) 88%,rgba(52,36,29,.34) 100%);mix-blend-mode:soft-light}.hero-modalities:after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(23,17,13,0) 0%,rgba(23,17,13,0) 80%,rgba(23,17,13,.08) 94%,rgba(23,17,13,.20) 100%)}.hero-modalities-head{display:none!important}.hero-apps{position:absolute!important;inset:0!important;display:block!important;z-index:5!important}.hero-app-card{position:absolute!important;top:14%!important;bottom:1%!important;width:50%!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important}.hero-app-card:first-child{left:0!important}.hero-app-card:last-child{right:0!important}.hero-app-card .eyebrow,.hero-app-card h3{display:none!important}.hero-app-card .btn{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:transparent!important;font-size:0!important;-webkit-tap-highlight-color:transparent!important;touch-action:manipulation!important}.hero-stats{order:2!important;min-height:0!important;margin:0!important;grid-template-columns:repeat(4,1fr)!important;padding:18px!important}@media(max-width:850px){.hero{padding:12px 8px 22px!important}.hero-modalities{border-radius:24px!important}.hero-stats{grid-template-columns:1fr 1fr!important}.header-actions{padding:0 6px!important}.court-motto{margin-left:6px!important}}@media(max-width:520px){.hero{padding:8px 7px 20px!important}.hero-modalities{border-radius:24px!important}.hero-stats{grid-template-columns:1fr!important}.court-motto{margin-top:12px!important}.header-actions{gap:8px!important;margin-bottom:14px!important}.header-actions .nav-pill[href="#ranking"]{min-height:68px!important;padding:15px 17px!important;border-radius:18px!important}}
+
+/* Geral: nova ordem editorial */
+.app{display:flex!important;flex-direction:column!important}
+.hero-court-wrap{order:1}.news-feature{order:2}.hero.integrated-hero{order:3}
+.leader-grid{display:contents!important}
+.leader-grid>.card{margin:18px clamp(14px,3vw,30px) 0}
+.leader-grid>.card:first-child{order:4}
+#ranking{order:5}
+.leader-grid>.card:nth-child(2){order:6}
+#agenda{order:7}
+#sugestoes{order:8}
+#participantes{order:9}
+.app>.section.card:not(#ranking):not(#agenda):not(#sugestoes):not(#participantes){order:10}
+.footer{order:11}
+
+/* Botões superiores na mesma sequência */
+.header-actions a[href="#ranking"]{order:1!important}
+.header-actions a[href="#agenda"]{order:2!important}
+.header-actions a[href="#sugestoes"]{order:3!important}
+.header-actions a[href="#participantes"]{order:4!important}
+
+/* Numeração visual coerente com a nova ordem */
+#ranking .eyebrow:first-child{font-size:0}
+#ranking .eyebrow:first-child:after{content:'02 · Ranking';font-size:11px}
+.leader-grid>.card:nth-child(2)>.eyebrow{font-size:0}
+.leader-grid>.card:nth-child(2)>.eyebrow:after{content:'03 · Temporada por modalidade';font-size:11px}
+#agenda .eyebrow:first-child{font-size:0}
+#agenda .eyebrow:first-child:after{content:'04 · Agenda central';font-size:11px}
+#sugestoes .eyebrow:first-child{font-size:0}
+#sugestoes .eyebrow:first-child:after{content:'05 · Próximos jogos';font-size:11px}
+#participantes .eyebrow:first-child{font-size:0}
+#participantes .eyebrow:first-child:after{content:'06 · Atletas';font-size:11px}
+@media(max-width:850px){.leader-grid>.card{margin-left:14px;margin-right:14px}}
