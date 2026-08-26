@@ -19,7 +19,7 @@
 #participantes{order:9}
 .app>.section.card:not(#ranking):not(#agenda):not(#sugestoes):not(#participantes){order:10}
 .footer{order:11}
-.header-actions a[href="#ranking"]{order:1!important}.header-actions a[href="#agenda"]{order:2!important}.header-actions a[href="#sugestoes"]{order:3!important}.header-actions a[href="#participantes"]{order:4!important}
+.header-actions a[href="#ranking"]{order:1!important}.header-actions a[href="#agenda"]{order:2!important}.header-actions a[href="#sugestoes"]{order:3!important}.header-actions a[href="#participantes"]{order:4!important}.header-actions a[href="./sorteio.html"]{order:5!important}
 #ranking .eyebrow:first-child{font-size:0}#ranking .eyebrow:first-child:after{content:'02 · Ranking';font-size:11px}
 .leader-grid>.card:nth-child(2)>.eyebrow{font-size:0}.leader-grid>.card:nth-child(2)>.eyebrow:after{content:'Temporada por modalidade';font-size:11px}
 #agenda .eyebrow:first-child{font-size:0}#agenda .eyebrow:first-child:after{content:'04 · Agenda central';font-size:11px}
