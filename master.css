@@ -49,3 +49,22 @@
 .leader-grid>.card:nth-child(2) .bar:after{content:'';grid-column:3;grid-row:3;width:170px;max-width:100%;height:6px;margin-top:10px;border-radius:999px;background:rgba(244,234,215,.12)}
 .leader-grid>.card:nth-child(2) .bar:first-child{background:linear-gradient(90deg,transparent 0,transparent calc(100% - 1px))!important}
 @media(max-width:620px){.hero-stats .stat{min-height:88px!important;padding-left:60px!important}.hero-stats .stat:before{left:13px;width:34px;height:34px}.leader-grid>.card:nth-child(2) .bar{grid-template-columns:48px minmax(0,1fr) auto!important;column-gap:12px!important;padding:19px 0!important}.leader-grid>.card:nth-child(2) .bar:before{width:38px;height:38px;font-size:16px}.leader-grid>.card:nth-child(2) .bar-top strong{font-size:21px!important}.leader-grid>.card:nth-child(2) .bar-top span{font-size:12px!important}.leader-grid>.card:nth-child(2) .bar:after{width:120px}}
+
+/* Próximos Jogos: escolha entre sorteio e sugestões */
+#sugestoes{display:flex!important;flex-direction:column!important}
+#sugestoes>.head{order:1!important}
+#sugestoes>.head h2{font-size:0!important}
+#sugestoes>.head h2:after{content:'Próximos jogos';font-size:clamp(24px,3.2vw,34px)!important}
+#sugestoes>.head>.note{display:none!important}
+#sugestoes>.sorteio-shortcut{order:2!important;margin:16px 0 4px!important;width:100%!important;justify-content:flex-start!important;padding:18px 20px!important;border-radius:20px!important;background:linear-gradient(135deg,rgba(217,184,120,.12),rgba(217,184,120,.035))!important}
+#sugestoes>.sorteio-shortcut img{width:78px!important;height:78px!important;flex:0 0 78px!important}
+#sugestoes>.sorteio-shortcut .sorteio-shortcut-copy small{font-size:0!important}
+#sugestoes>.sorteio-shortcut .sorteio-shortcut-copy small:after{content:'Quer sortear?';display:block;font-size:18px!important;letter-spacing:0!important;text-transform:none!important;color:var(--cream)!important;margin-bottom:6px}
+#sugestoes>.sorteio-shortcut .sorteio-shortcut-copy strong{font-size:16px!important;color:var(--gold-soft)!important}
+#sugestoes:after{content:'ou\A\A Siga nossas sugestões\A Respeita disponibilidade, prioriza sempre quem tem menos jogos no total (Simples + Duplas) e nunca repete atleta entre Simples e Duplas na mesma data.';order:3!important;white-space:pre-line;display:block;margin:16px 4px 14px;padding-top:16px;border-top:1px solid rgba(244,234,215,.12);color:rgba(244,234,215,.68);font-size:13px;line-height:1.55}
+#sugestoes>.suggest-grid{order:4!important}
+#sugestoes .app-card>.eyebrow{font-size:11px!important}
+#sugestoes .app-card>.eyebrow:after{content:none!important;display:none!important}
+#sugestoes .app-card:first-child>.eyebrow{color:#7cda59!important}
+#sugestoes .app-card:last-child>.eyebrow{color:#79a9e8!important}
+@media(max-width:620px){#sugestoes>.sorteio-shortcut{padding:15px!important;gap:12px!important}#sugestoes>.sorteio-shortcut img{width:64px!important;height:64px!important;flex-basis:64px!important}#sugestoes>.sorteio-shortcut .sorteio-shortcut-copy small:after{font-size:17px!important}}
