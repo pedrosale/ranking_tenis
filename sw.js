@@ -1,4 +1,4 @@
-const CACHE_NAME = "segunda-sagrada-v7";
+const CACHE_NAME = "segunda-sagrada-v8";
 const APP_SHELL = ["./", "./index.html", "./master.html", "./geral-content.html", "./duplas.html", "./instalar.html", "./manifest.json"];
 
 self.addEventListener("install", event => {
@@ -18,9 +18,12 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
+
   const requestUrl = new URL(event.request.url);
   const scopeUrl = new URL("./", self.location.href);
+  const sameOrigin = requestUrl.origin === self.location.origin;
   const isAppRootNavigation = event.request.mode === "navigate" && requestUrl.pathname === scopeUrl.pathname;
+  const isFreshAsset = sameOrigin && (requestUrl.pathname.endsWith(".js") || requestUrl.pathname.endsWith(".html"));
 
   if (isAppRootNavigation) {
     event.respondWith(
@@ -38,10 +41,10 @@ self.addEventListener("fetch", event => {
   }
 
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, isFreshAsset ? { cache: "no-store" } : undefined)
       .then(response => {
         const copy = response.clone();
-        if (response.ok && event.request.url.startsWith(self.location.origin)) {
+        if (response.ok && sameOrigin) {
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         }
         return response;
