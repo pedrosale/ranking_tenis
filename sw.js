@@ -1,4 +1,4 @@
-const CACHE_NAME = "segunda-sagrada-v8";
+const CACHE_NAME = "segunda-sagrada-v9";
 const APP_SHELL = ["./", "./index.html", "./master.html", "./geral-content.html", "./duplas.html", "./instalar.html", "./manifest.json"];
 
 self.addEventListener("install", event => {
@@ -23,7 +23,11 @@ self.addEventListener("fetch", event => {
   const scopeUrl = new URL("./", self.location.href);
   const sameOrigin = requestUrl.origin === self.location.origin;
   const isAppRootNavigation = event.request.mode === "navigate" && requestUrl.pathname === scopeUrl.pathname;
-  const isFreshAsset = sameOrigin && (requestUrl.pathname.endsWith(".js") || requestUrl.pathname.endsWith(".html"));
+  const isFreshAsset = sameOrigin && (
+    requestUrl.pathname.endsWith(".js") ||
+    requestUrl.pathname.endsWith(".html") ||
+    requestUrl.pathname.endsWith(".css")
+  );
 
   if (isAppRootNavigation) {
     event.respondWith(
