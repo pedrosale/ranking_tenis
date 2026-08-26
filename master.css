@@ -14,7 +14,7 @@
 #ranking{order:5}
 .hero-stats{order:6!important;margin:18px clamp(14px,3vw,30px) 0!important;padding:46px 18px 16px!important;position:relative!important;border:1px solid var(--line)!important;border-bottom:0!important;border-radius:24px 24px 0 0!important;background:linear-gradient(145deg,rgba(255,248,236,.055),rgba(31,95,59,.055))!important;box-shadow:none!important}
 .hero-stats:before{content:'03 · Resumo geral';position:absolute;top:18px;left:20px;color:var(--gold-soft);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:800}
-.leader-grid>.card:nth-child(2){order:6;margin-top:0!important;border-top:1px solid rgba(244,234,215,.07)!important;border-radius:0 0 24px 24px!important;padding-top:16px!important}
+.leader-grid>.card:nth-child(2){order:6;margin-top:0!important;border-top:1px solid rgba(244,234,215,.07)!important;border-radius:0 0 24px 24px!important;padding-top:16px!important;background:linear-gradient(145deg,rgba(255,248,236,.055),rgba(31,95,59,.055))!important;box-shadow:none!important}
 #agenda{order:7}
 #sugestoes{order:8}
 #participantes{order:9}
