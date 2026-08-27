@@ -1,0 +1,37 @@
+name: Fix Marcel save freeze
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-marcel-save-freeze.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch save flow
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('marcel_balao.html')
+          s=p.read_text(encoding='utf-8')
+          old="saveStatus.textContent='Resultado salvo! 🏆';playerName.blur();setTimeout(()=>{renderRank();modal.classList.add('show')},350)"
+          new="saveStatus.textContent='Resultado salvo! 🏆';playerName.blur();setTimeout(()=>{savebox.classList.remove('show');renderRank();modal.classList.add('show')},250)"
+          if old not in s:
+              raise SystemExit('Expected save flow not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+      - name: Validate
+        run: grep -q "savebox.classList.remove('show');renderRank();modal.classList.add('show')" marcel_balao.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add marcel_balao.html
+          git commit -m 'fix: close score save modal before showing top 5'
+          git rm .github/workflows/fix-marcel-save-freeze.yml
+          git commit -m 'chore: remove temporary Marcel save fix workflow'
+          git push origin main
