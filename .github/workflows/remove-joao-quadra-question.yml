@@ -1,0 +1,36 @@
+name: Remove Joao quadra question
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/remove-joao-quadra-question.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove question
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('joao_ai.html')
+          s=p.read_text()
+          s=s.replace('<button class="chip" data-q="quadra">Que horas posso ir lá quadra?</button>','')
+          s=s.replace(",quadra:'Que horas posso ir lá quadra?'",'')
+          s=s.replace(";else if(x==='quadra')a='<strong>Pergunta pro Renato.</strong>'",'')
+          p.write_text(s)
+          PY
+      - name: Validate
+        run: |
+          ! grep -q 'Que horas posso ir lá quadra' joao_ai.html
+          ! grep -q "x==='quadra'" joao_ai.html
+      - name: Commit and cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm .github/workflows/remove-joao-quadra-question.yml
+          git add joao_ai.html .github/workflows/remove-joao-quadra-question.yml
+          git commit -m "fix: remove quadra time question from Joao AI"
+          git push
