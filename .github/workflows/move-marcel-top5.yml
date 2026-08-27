@@ -1,9 +1,10 @@
 name: Move Marcel Top 5
-on: workflow_dispatch
+on: push
 permissions:
   contents: write
 jobs:
   patch:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
