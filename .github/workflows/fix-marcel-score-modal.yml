@@ -1,0 +1,44 @@
+name: Fix Marcel score modal
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-marcel-score-modal.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Center score save box
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('marcel_balao.html')
+          s=p.read_text(encoding='utf-8')
+          old='.savebox{display:none;margin-top:10px;padding:12px;border:1px solid #f3d58f55;border-radius:16px;background:#0f1f17}.savebox.show{display:block}'
+          new='.savebox{display:none;position:fixed;z-index:60;left:50%;top:50%;transform:translate(-50%,-50%);width:min(calc(100% - 34px),390px);padding:16px;border:1px solid #f3d58f88;border-radius:20px;background:linear-gradient(160deg,#1b3024,#102018);box-shadow:0 25px 70px #000b}.savebox.show{display:block}.savebox.show:before{content:"";position:fixed;inset:-100vh -100vw;z-index:-1;background:#07110dcc;backdrop-filter:blur(5px)}'
+          if old not in s:
+              raise SystemExit('Expected savebox CSS not found')
+          s=s.replace(old,new,1)
+          s=s.replace("saveStatus.textContent=score>0?'Digite seu nome para registrar '+score+' devoluções.':'Você pode salvar mesmo assim — mas dá para melhorar 😄'","saveStatus.textContent=score>0?'Digite seu nome para registrar '+score+' devoluções.':'Você pode salvar mesmo assim — mas dá para melhorar 😄';setTimeout(()=>playerName.focus(),120)",1)
+          p.write_text(s,encoding='utf-8')
+      - name: Validate
+        shell: bash
+        run: |
+          grep -q 'position:fixed;z-index:60' marcel_balao.html
+          grep -q 'setTimeout(()=>playerName.focus(),120)' marcel_balao.html
+      - name: Commit and remove workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add marcel_balao.html
+          git rm .github/workflows/fix-marcel-score-modal.yml
+          git commit -m 'fix: show Marcel score save form in centered modal'
+          git push origin main
