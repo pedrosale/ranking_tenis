@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Segunda Sagrada · Árbitro IA Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#17110d;--surface:rgba(255,248,236,.07);--surface2:rgba(255,248,236,.035);--cream:#f4ead7;--muted:rgba(244,234,215,.62);--gold:#d9b878;--line:rgba(244,234,215,.14);--green:#2f7b50;--blue:#4f8dcc}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,Arial,sans-serif;color:var(--cream);background:radial-gradient(circle at 12% 8%,rgba(191,113,74,.22),transparent 28%),radial-gradient(circle at 88% 10%,rgba(31,95,59,.18),transparent 30%),linear-gradient(145deg,#17110d,#241611 45%,#102419 100%)}
+.wrap{width:min(940px,calc(100% - 24px));margin:0 auto;padding:18px 0 50px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.back{color:var(--cream);text-decoration:none;border:1px solid var(--line);padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.035);font-size:12px;font-weight:800}.badge{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:900}.hero,.panel{border:1px solid var(--line);background:linear-gradient(145deg,var(--surface),var(--surface2));border-radius:26px;box-shadow:0 20px 55px rgba(0,0,0,.22)}.hero{padding:24px}.kicker{color:var(--gold);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:900}.hero h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(32px,6vw,54px);line-height:.95;margin:8px 0 10px}.hero p{margin:0;color:var(--muted);line-height:1.55;max-width:760px}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-top:16px}.panel{padding:18px}.panel h2{font-size:17px;margin:0 0 8px}.panel p{font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 14px}.questions{display:flex;flex-wrap:wrap;gap:8px}.q{border:1px solid rgba(217,184,120,.32);background:rgba(217,184,120,.07);color:var(--cream);padding:9px 11px;border-radius:999px;font:700 12px Inter;cursor:pointer}.q:hover{background:rgba(217,184,120,.12)}.chat{margin-top:16px;display:flex;flex-direction:column;gap:10px;min-height:250px}.bubble{max-width:88%;padding:13px 14px;border-radius:18px;line-height:1.48;font-size:13px}.bubble.user{align-self:flex-end;background:rgba(79,141,204,.16);border:1px solid rgba(79,141,204,.28)}.bubble.bot{align-self:flex-start;background:rgba(31,95,59,.14);border:1px solid rgba(47,123,80,.28)}.bubble small{display:block;margin-top:7px;color:var(--muted);font-size:10px}.composer{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}.composer input{width:100%;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.18);color:var(--cream);padding:13px 14px}.composer button{border:0;border-radius:14px;background:linear-gradient(135deg,#2f7b50,#173f2a);color:white;font-weight:900;padding:0 18px}.facts{display:grid;gap:9px}.fact{padding:11px 12px;border-radius:15px;border:1px solid var(--line);background:rgba(0,0,0,.12)}.fact strong{display:block;font-size:13px}.fact span{display:block;margin-top:3px;color:var(--muted);font-size:11px}.source{margin-top:14px;padding:12px;border-radius:15px;border:1px dashed rgba(217,184,120,.28);color:var(--muted);font-size:11px;line-height:1.5}.source b{color:var(--gold)}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.top{align-items:flex-start}.composer{grid-template-columns:1fr}.composer button{padding:13px}.bubble{max-width:94%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="back" href="./master.html">← Voltar para o Geral</a><div class="badge">Preview · sem IA externa</div></div>
+  <section class="hero"><div class="kicker">Segunda Sagrada · Árbitro</div><h1>Pergunte ao Árbitro 🎾</h1><p>Um assistente para explicar regras, prioridades, disponibilidade, pontuação e decisões do motor. Este preview é determinístico e simula como a experiência pode funcionar antes de conectarmos uma IA generativa.</p></section>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Perguntas rápidas</h2>
+      <p>Toque em uma opção para ver como o Árbitro responderia.</p>
+      <div class="questions">
+        <button class="q" data-q="Por que um atleta é priorizado no Simples?">Por que alguém é priorizado no Simples?</button>
+        <button class="q" data-q="Como funciona a pontuação?">Como funciona a pontuação?</button>
+        <button class="q" data-q="Por que um confronto não entrou no sorteio?">Por que um confronto não entrou?</button>
+        <button class="q" data-q="O que acontece se for quarta-feira e alguém estiver indisponível?">E se alguém estiver indisponível?</button>
+        <button class="q" data-q="Posso jogar Simples e Duplas na mesma rodada?">Pode jogar Simples e Duplas?</button>
+        <button class="q" data-q="O sorteio altera o ranking ou agenda?">O sorteio altera o ranking?</button>
+        <button class="q" data-q="Como o motor escolhe entre duas combinações válidas?">Como desempata combinações?</button>
+        <button class="q" data-q="Qual a diferença entre Sugestões e Sorteio?">Sugestões x Sorteio</button>
+      </div>
+      <div class="chat" id="chat"></div>
+      <div class="composer"><input id="ask" placeholder="Ex: por que o Wagner foi priorizado?"><button id="send">Perguntar</button></div>
+    </section>
+
+    <aside class="panel">
+      <h2>O que o Árbitro consulta</h2>
+      <div class="facts">
+        <div class="fact"><strong>Regulamento oficial</strong><span>Regras de Simples, Duplas, Geral, Agenda e Sorteio.</span></div>
+        <div class="fact"><strong>Estado da temporada</strong><span>Jogos realizados, pendentes, disponibilidade e contagem por modalidade.</span></div>
+        <div class="fact"><strong>Log da decisão</strong><span>Quais combinações foram descartadas e por quê.</span></div>
+        <div class="fact"><strong>Explicação auditável</strong><span>A resposta mostra o critério usado, não apenas uma conclusão.</span></div>
+      </div>
+      <div class="source"><b>Fonte futura:</b> <code>docs/REGULAMENTO_MOTOR.md</code> + dados oficiais do Firestore + log do sorteio.</div>
+    </aside>
+  </div>
+</div>
+<script>
+const responses=[
+  {m:['pontuação','pontuacao'],a:'No motor atual, a pontuação combina resultado e desempenho em games. O vencedor parte de 10 pontos-base e o perdedor de 6 pontos-base, somando-se os games vencidos conforme as regras vigentes. O Geral soma depois os pontos de Simples e Duplas.'},
+  {m:['priorizado','priorizada','prioridade','simples'],a:'A prioridade é por modalidade. Para vagas de Simples, o motor favorece quem tem menos partidas de Simples disputadas entre os atletas elegíveis. Depois verifica se existe confronto oficial pendente e se os dois atletas estão disponíveis.'},
+  {m:['confronto','não entrou','nao entrou','bloqueado'],a:'Um confronto pode ficar fora por quatro motivos principais: já foi realizado, não pertence à grade oficial pendente, algum atleta está indisponível na data, ou ele conflita com outro jogo da mesma composição usando o mesmo atleta.'},
+  {m:['quarta','indisponível','indisponivel'],a:'Se a data for quarta-feira, o calendário oficial do Geral é obrigatório. Quem estiver marcado como indisponível fica fora do sorteio e não pode ser selecionado. Em outros dias, essa indisponibilidade do calendário não bloqueia automaticamente.'},
+  {m:['simples e duplas','mesma rodada','dois jogos'],a:'Na mesma composição de rodada, o motor evita usar o mesmo atleta em dois confrontos. Portanto, se ele já foi alocado em Simples, não deve ser usado também em Duplas naquela mesma composição.'},
+  {m:['altera','ranking','agenda'],a:'Não. O Sorteio é uma ferramenta de planejamento. Ele não grava resultado, não altera ranking, não muda disponibilidade e não mexe na agenda. Só quando um resultado é lançado no módulo oficial o estado competitivo muda.'},
+  {m:['desempata','combinações','combinacoes','válidas','validas'],a:'O motor primeiro prefere soluções que atendam exatamente a composição pedida, depois as que usam melhor os atletas disponíveis e respeitam o equilíbrio de jogos. A aleatoriedade entra somente entre soluções equivalentes nos critérios superiores.'},
+  {m:['sugestões','sugestoes','diferença','diferenca'],a:'Sugestões é a recomendação automática do sistema para os próximos jogos. Sorteio é uma ação do usuário: ele escolhe data, participantes e composição e pede uma solução válida dentro das mesmas regras.'}
+];
+const chat=document.getElementById('chat'),ask=document.getElementById('ask');
+function answer(q){const t=q.toLocaleLowerCase('pt-BR');const r=responses.find(x=>x.m.some(k=>t.includes(k)));return r?.a||'Neste preview eu respondo apenas perguntas já mapeadas. Na versão real, o Árbitro consultaria o regulamento e o estado atual da temporada para explicar esse caso específico.'}
+function add(role,text){const d=document.createElement('div');d.className='bubble '+role;d.innerHTML=text+(role==='bot'?'<small>Resposta baseada no regulamento do motor</small>':'');chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+function run(q){if(!q.trim())return;add('user',q);setTimeout(()=>add('bot',answer(q)),120)}
+document.querySelectorAll('.q').forEach(b=>b.onclick=()=>run(b.dataset.q));document.getElementById('send').onclick=()=>{run(ask.value);ask.value=''};ask.addEventListener('keydown',e=>{if(e.key==='Enter'){run(ask.value);ask.value=''}});
+add('bot','Olá. Eu sou o Árbitro da Segunda Sagrada. Posso explicar regras, pontuação, disponibilidade, prioridades e decisões de sorteio. Escolha uma pergunta acima para testar o preview.');
+</script>
+</body>
+</html>
