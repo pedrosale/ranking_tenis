@@ -1,0 +1,39 @@
+name: Add Joao etiquette question
+on:
+  push:
+    paths:
+      - '.github/workflows/add-joao-etiqueta.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch joao_ai.html
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('joao_ai.html')
+          s=p.read_text()
+          old='<button class="chip" data-q="sorteio">Como funciona o sorteio?</button></div></div></div>'
+          new='<button class="chip" data-q="sorteio">Como funciona o sorteio?</button><button class="chip" data-q="etiqueta">Quais as regras de etiqueta?</button></div></div></div>'
+          assert old in s
+          s=s.replace(old,new,1)
+          old2="sorteio:'Como funciona o sorteio?',gerais:'Quais são as regras gerais?'"
+          new2="sorteio:'Como funciona o sorteio?',etiqueta:'Quais as regras de etiqueta?',gerais:'Quais são as regras gerais?'"
+          assert old2 in s
+          s=s.replace(old2,new2,1)
+          marker="else if(x==='gerais')a="
+          assert marker in s
+          s=s.replace(marker,"else if(x==='etiqueta')a='<strong>🎾 Regras de etiqueta</strong><br><br>É proibido:<br>• arrotar no toss;<br>• deitar na quadra;<br>• falar <strong>acabou</strong> antes de acabar;<br>• pisar na bolinha.';"+marker,1)
+          p.write_text(s)
+          PY
+          grep -q 'Quais as regras de etiqueta?' joao_ai.html
+          grep -q 'arrotar no toss' joao_ai.html
+          rm .github/workflows/add-joao-etiqueta.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add joao_ai.html .github/workflows/add-joao-etiqueta.yml
+          git commit -m 'feat: add etiquette rules to Joao AI'
+          git push
