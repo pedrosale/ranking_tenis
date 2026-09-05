@@ -1,0 +1,26 @@
+name: Publish Hall shortcut
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          s=p.read_text()
+          s=s.replace('<a class="nav-pill" href="#ranking">Ranking</a>','<a class="nav-pill" href="./hall_of_fame.html">🏆 Hall of Fame</a><a class="nav-pill" href="#ranking">Ranking</a>',1)
+          s=s.replace('.header-actions a[href="#ranking"]{grid-column:1/-1;grid-row:1}', '.header-actions a[href="./hall_of_fame.html"]{grid-column:1/-1;grid-row:1}.header-actions a[href="#ranking"]{grid-column:1/-1;grid-row:2}')
+          s=s.replace('grid-row:2}\n.header-actions a[href="#agenda"]{grid-column:5/7;grid-row:2}', 'grid-row:3}\n.header-actions a[href="#agenda"]{grid-column:5/7;grid-row:3}')
+          s=s.replace('grid-row:3}\n.header-actions a[href="#participantes"]{grid-column:3/5;grid-row:3}', 'grid-row:4}\n.header-actions a[href="#participantes"]{grid-column:3/5;grid-row:4}')
+          s=s.replace('grid-row:3}\n.header-actions a[href="./sorteio.html"]{grid-column:1/-1;grid-row:4}', 'grid-row:4}\n.header-actions a[href="./sorteio.html"]{grid-column:1/-1;grid-row:5}')
+          p.write_text(s)
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add master.html
+          git commit -m 'feat: add Hall of Fame to Master'
+          git push
