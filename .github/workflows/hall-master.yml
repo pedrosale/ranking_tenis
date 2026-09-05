@@ -1,5 +1,8 @@
 name: Publish Hall shortcut
-on: workflow_dispatch
+on:
+  push:
+    paths:
+      - '.github/workflows/hall-master.yml'
 permissions:
   contents: write
 jobs:
