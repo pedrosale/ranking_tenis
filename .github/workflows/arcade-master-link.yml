@@ -1,0 +1,42 @@
+name: Wire Arcade SS into Master
+on:
+  push:
+    paths:
+      - '.github/workflows/arcade-master-link.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch master navigation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('master.html')
+          s=p.read_text()
+          old_css='.header-actions a[href="https://pedrosale.github.io/ranking_tenis/marcel_balao.html"]{grid-column:1/5;grid-row:3}'
+          new_css='.header-actions a[href="./arcade_ss.html"]{grid-column:1/5;grid-row:3}'
+          if old_css not in s: raise SystemExit('Old Marcel CSS selector not found')
+          s=s.replace(old_css,new_css,1)
+          old_link='<a class="nav-pill" href="https://pedrosale.github.io/ranking_tenis/marcel_balao.html" target="_blank" rel="noopener">Jogue balão com o Marcel</a>'
+          new_link='<a class="nav-pill" href="./arcade_ss.html">🎮 Arcade SS</a>'
+          if old_link not in s: raise SystemExit('Old Marcel button not found')
+          s=s.replace(old_link,new_link,1)
+          p.write_text(s)
+          PY
+          grep -q 'href="./arcade_ss.html">🎮 Arcade SS' master.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add master.html
+          git commit -m 'feat: replace Marcel shortcut with Arcade SS'
+          git push
+      - name: Cleanup workflow
+        run: |
+          git pull --rebase
+          git rm .github/workflows/arcade-master-link.yml
+          git commit -m 'chore: remove temporary Arcade wiring workflow'
+          git push
