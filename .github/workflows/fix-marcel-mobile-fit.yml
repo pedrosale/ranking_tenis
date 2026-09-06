@@ -1,0 +1,60 @@
+name: Fix Marcel mobile fit
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-marcel-mobile-fit.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch responsive layout
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('marcel_balao.html')
+          s=p.read_text()
+          marker='</style>'
+          css='''
+@media (max-height: 820px) and (max-width: 560px){
+  html,body{min-height:100dvh}
+  .wrap{padding:8px 10px calc(16px + env(safe-area-inset-bottom));}
+  .top{margin-bottom:6px}
+  .card{padding:8px;border-radius:18px}
+  h1{font-size:22px;margin:3px 4px 1px}
+  .sub{font-size:12px;line-height:1.25;margin:0 4px 6px}
+  canvas{width:auto;max-width:100%;height:min(66dvh,620px);aspect-ratio:auto;margin:0 auto}
+  .controls{gap:8px;margin-top:8px}
+  .btn{padding:11px 8px;font-size:14px}
+  .start{margin-top:8px;padding:11px;font-size:14px}
+  .tip{font-size:11px;line-height:1.25;margin:7px 4px 0}
+}
+@media (max-height: 740px) and (max-width: 560px){
+  canvas{height:min(60dvh,540px)}
+  .sub{display:none}
+  .top{font-size:11px}
+}
+'''
+          if marker not in s:
+              raise SystemExit('style marker not found')
+          s=s.replace(marker,css+marker,1)
+          p.write_text(s)
+          PY
+          grep -q 'max-height: 820px' marcel_balao.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add marcel_balao.html
+          git commit -m 'fix: fit Marcel game on short mobile screens'
+          git push origin main
+      - name: Remove temporary workflow
+        run: |
+          git pull --rebase origin main
+          git rm .github/workflows/fix-marcel-mobile-fit.yml
+          git commit -m 'chore: remove temporary Marcel mobile-fit workflow'
+          git push origin main
