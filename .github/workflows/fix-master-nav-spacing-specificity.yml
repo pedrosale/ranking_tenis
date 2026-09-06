@@ -1,0 +1,32 @@
+name: Fix Master navigation spacing specificity
+on:
+  push:
+    paths: ['.github/workflows/fix-master-nav-spacing-specificity.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cat >> master.css <<'CSS'
+
+/* Definitive separation between modality hero and season controls.
+   Must outrank the legacy .hero.integrated-hero>.header-actions margin rule. */
+.app .hero.integrated-hero > .header-actions{
+  margin:36px 20px 12px!important;
+}
+@media(max-width:850px){
+  .app .hero.integrated-hero > .header-actions{
+    margin:36px 14px 12px!important;
+  }
+}
+CSS
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add master.css
+          git commit -m 'fix: enforce spacing before season controls'
+          git rm .github/workflows/fix-master-nav-spacing-specificity.yml
+          git commit -m 'chore: remove temporary spacing workflow'
+          git push
