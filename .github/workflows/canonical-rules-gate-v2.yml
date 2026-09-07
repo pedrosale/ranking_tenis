@@ -1,0 +1,61 @@
+name: Canonicalize Segunda Sagrada rules v2
+on:
+  push:
+    paths: ['.github/workflows/canonical-rules-gate-v2.yml']
+permissions:
+  contents: write
+jobs:
+  canonicalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract all current answers and wire canonical source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, json
+          p=Path('joao_ai.html'); s=p.read_text()
+          keys=['jogos','horario','etiqueta','gerais','simples','duplas','finais','sorteio']
+          rules={}
+          for i,k in enumerate(keys):
+              marker=("if(x==='" if i==0 else "else if(x==='")+k+"')a='"
+              a=s.find(marker)
+              if a<0: raise SystemExit('missing '+k)
+              a+=len(marker)
+              if i+1<len(keys):
+                  nextmarker=";else if(x==='"+keys[i+1]+"')a='"
+                  b=s.find(nextmarker,a)
+              else:
+                  b=s.find(";setTimeout(()=>add(a),180)",a)
+              if b<0: raise SystemExit('end missing '+k)
+              rules[k]=s[a:b]
+          header='''/**\n * Segunda Sagrada — canonical user-facing competition rules.\n * Single source of truth extracted from the validated João AI copy on 2026-09-07.\n * Update approved rule wording here first.\n */\n'''
+          Path('ss-rules.js').write_text(header+'window.SS_RULES = Object.freeze('+json.dumps(rules,ensure_ascii=False,indent=2)+');\n')
+          start=s.index("function ask(x){")
+          end=s.index("document.querySelectorAll('.chip')",start)
+          new="function ask(x){add(Q[x],'user');const a=window.SS_RULES?.[x]||'<strong>Regra indisponível.</strong>';setTimeout(()=>add(a),180)};"
+          s=s[:start]+new+s[end:]
+          tag='<script src="./ss-rules.js?v=20260907-canonical-v2"></script>'
+          inline='<script>const c=document.getElementById(\'chat\')'
+          if inline not in s: raise SystemExit('inline script marker missing')
+          s=s.replace(inline,tag+inline,1)
+          p.write_text(s)
+          PY
+      - name: Validate canonical gate
+        run: |
+          node --check ss-rules.js
+          grep -q 'window.SS_RULES' ss-rules.js
+          grep -q '8 primeiros colocados do ranking de Simples' ss-rules.js
+          grep -q '8 primeiros colocados do ranking de Duplas' ss-rules.js
+          grep -q 'super tie-break até 10 pontos' ss-rules.js
+          grep -q 'window.SS_RULES?.\[x\]' joao_ai.html
+          test "$(grep -o "else if(x==='simples')a=" joao_ai.html | wc -l)" -eq 0
+      - name: Persist gate
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add ss-rules.js joao_ai.html
+          git commit -m 'refactor: centralize Segunda Sagrada rule copy'
+          git rm .github/workflows/canonical-rules-gate.yml .github/workflows/canonical-rules-gate-v2.yml
+          git commit -m 'chore: remove canonical rules gate workflows'
+          git push
