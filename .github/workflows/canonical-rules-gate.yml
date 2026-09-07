@@ -1,0 +1,71 @@
+name: Canonicalize Segunda Sagrada rules
+on:
+  push:
+    paths: ['.github/workflows/canonical-rules-gate.yml']
+permissions:
+  contents: write
+jobs:
+  canonicalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract canonical answers and wire Joao AI
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, json
+          p=Path('joao_ai.html')
+          s=p.read_text()
+          # Preserve the exact currently-approved João AI copy; only move its source of truth.
+          pairs=re.findall(r"(?:if|else if)\(x==='([^']+)'\)a='((?:\\.|[^'])*)'",s)
+          rules=dict(pairs)
+          expected={'jogos','horario','etiqueta','gerais','simples','duplas','finais','sorteio'}
+          if set(rules)!=expected:
+              raise SystemExit(f'Could not extract all canonical answers: {set(rules)}')
+          # Decode JS single-quoted string escapes conservatively, then re-emit via JSON.
+          decoded={}
+          for k,v in rules.items():
+              v=v.replace("\\'", "'").replace('\\n','\n').replace('\\r','\r')
+              decoded[k]=v
+          header='''/**\n * Segunda Sagrada — canonical competition rules / João AI answers.\n *\n * This file is the single source of truth for user-facing rule explanations.\n * Change approved competition rules here first; consumers must read from here.\n * Generated from the previously validated João AI copy on 2026-09-07 without\n * changing wording or scoring semantics.\n */\n'''
+          content=header+'window.SS_RULES = Object.freeze('+json.dumps(decoded,ensure_ascii=False,indent=2)+');\n'
+          Path('ss-rules.js').write_text(content)
+          start=s.index("function ask(x){")
+          end=s.index("document.querySelectorAll('.chip')",start)
+          new="function ask(x){add(Q[x],'user');const a=window.SS_RULES?.[x]||'<strong>Regra indisponível.</strong>';setTimeout(()=>add(a),180)};"
+          s=s[:start]+new+s[end:]
+          s=s.replace('</body>','<script src="./ss-rules.js?v=20260907-canonical"></script></body>',1)
+          # External rules must load before the inline ask handler executes. Move script tag before inline script.
+          s=s.replace('<script src="./ss-rules.js?v=20260907-canonical"></script></body><script>', '</body><script>') if False else s
+          # Since the inline handler only runs after user interaction, loading before </body> is still synchronous and safe,
+          # but place it before the inline script for deterministic availability.
+          s=s.replace('</section></div><script>', '</section></div><script src="./ss-rules.js?v=20260907-canonical"></script><script>',1)
+          s=s.replace('<script src="./ss-rules.js?v=20260907-canonical"></script></body>','</body>',1)
+          p.write_text(s)
+          PY
+      - name: Validate canonical gate
+        run: |
+          node --check ss-rules.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          j=Path('joao_ai.html').read_text(); r=Path('ss-rules.js').read_text()
+          assert j.count('ss-rules.js?v=20260907-canonical') == 1
+          assert "if(x==='simples')" not in j
+          for key in ['jogos','horario','etiqueta','gerais','simples','duplas','finais','sorteio']:
+              assert f'"{key}"' in r
+          # Critical approved semantics must survive the move unchanged.
+          for phrase in ['8 primeiros colocados do ranking de Simples','8 primeiros colocados do ranking de Duplas','teto de <strong>8 games pontuáveis</strong>','teto de <strong>6 games por dupla em cada set</strong>','super tie-break até <strong>10 pontos</strong>']:
+              assert phrase in r, phrase
+          print('CANONICAL_RULES_GATE=PASS')
+          PY
+          git diff --check
+      - name: Persist gate
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add joao_ai.html ss-rules.js
+          git commit -m 'refactor: centralize official competition rules'
+          git rm .github/workflows/canonical-rules-gate.yml
+          git commit -m 'chore: remove temporary canonical rules workflow'
+          git push
