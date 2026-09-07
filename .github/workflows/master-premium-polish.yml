@@ -1,0 +1,29 @@
+name: Polish Master visual hierarchy
+on:
+  push:
+    paths: ['.github/workflows/master-premium-polish.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('master.html'); s=p.read_text()
+          anchor='</style>'
+          css='''\n/* 2026-09-07 premium polish — structure preserved */\n.universe-nav{margin-top:4px!important;margin-bottom:12px!important;padding:15px 16px 16px!important;border-color:rgba(217,184,120,.27)!important;background:linear-gradient(145deg,rgba(217,184,120,.075),rgba(255,255,255,.012))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important}\n.concept-label{margin-bottom:11px!important;opacity:.92}\n.universe-card{min-height:72px!important;border-color:rgba(217,184,120,.20)!important;background:rgba(255,248,236,.018)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.018)!important;transition:background .18s ease,border-color .18s ease,transform .18s ease!important}\n.universe-card:active{transform:scale(.985)!important;background:rgba(217,184,120,.055)!important}\n.universe-card strong{font-weight:700!important}.universe-card span{opacity:.56!important}\n.hero-court-wrap{padding-top:14px!important}\n.hero-kicker{margin-bottom:9px!important;opacity:.90}\n.court-portal{box-shadow:0 20px 52px rgba(0,0,0,.24),0 0 0 1px rgba(217,184,120,.025)!important}\n.hero.integrated-hero>.header-actions{padding-top:38px!important;padding-bottom:2px!important}\n.header-actions .nav-pill{border-color:rgba(244,234,215,.13)!important;background:rgba(255,248,236,.035)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.018)!important;transition:background .18s ease,border-color .18s ease,transform .18s ease!important}\n.header-actions .nav-pill:active{transform:scale(.99)!important;background:rgba(255,248,236,.065)!important}\n.header-actions a[href="#ranking"]{border-color:rgba(217,184,120,.24)!important;background:linear-gradient(135deg,rgba(217,184,120,.075),rgba(255,248,236,.025))!important}\n.header-actions a[href="./sorteio.html"]{border-color:rgba(217,184,120,.20)!important}\n.leader-grid>.card:first-child{border-color:rgba(217,184,120,.24)!important;background:linear-gradient(145deg,rgba(217,184,120,.085),rgba(255,248,236,.035),rgba(31,95,59,.035))!important;box-shadow:0 16px 42px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.025)!important}\n.leader-grid>.card:first-child .eyebrow{letter-spacing:.18em!important}\n.leader-grid>.card:first-child .leader-name{letter-spacing:-.025em!important}\n@media(max-width:520px){\n .universe-nav{padding:13px 11px 14px!important;margin-bottom:10px!important}\n .universe-card{min-height:66px!important;border-radius:16px!important}\n .hero-court-wrap{padding-top:12px!important}\n .hero.integrated-hero>.header-actions{padding-top:38px!important}\n .leader-grid>.card:first-child{margin-top:22px!important}\n}\n'''
+          if '2026-09-07 premium polish' not in s:
+              s=s.replace(anchor,css+anchor,1)
+          p.write_text(s)
+          PY
+          grep -q '2026-09-07 premium polish' master.html
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add master.html
+          git commit -m 'style: polish Master visual hierarchy'
+          git rm .github/workflows/master-premium-polish.yml
+          git commit -m 'chore: remove temporary polish workflow'
+          git push
