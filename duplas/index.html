@@ -15,8 +15,8 @@
 <section class="hero">
 <div class="kicker">Segunda Sagrada · Temporada 2026</div>
 <h1>Duplas</h1>
-<p>20 partidas · 8 jogos por atleta · nenhuma parceria repetida. Atletas e disponibilidade são herdados automaticamente do Single.</p>
-<div class="stats"><div class="stat"><strong id="athletesCount">0/10</strong><span>atletas</span></div><div class="stat"><strong>20</strong><span>partidas</span></div><div class="stat"><strong id="playedCount">0</strong><span>jogadas</span></div><div class="stat"><strong id="pendingCount">20</strong><span>pendentes</span></div></div>
+<p>23 partidas · todas as 45 parcerias aparecem; 1 parceria se repete. Atletas e disponibilidade são herdados automaticamente do Single.</p>
+<div class="stats"><div class="stat"><strong id="athletesCount">0/10</strong><span>atletas</span></div><div class="stat"><strong>23</strong><span>partidas</span></div><div class="stat"><strong id="playedCount">0</strong><span>jogadas</span></div><div class="stat"><strong id="pendingCount">23</strong><span>pendentes</span></div></div>
 </section>
 
 <section class="grid">
@@ -59,7 +59,7 @@ async function loadFirebaseConfig(){
   return cfg;
 }
 
-const TEMPLATE=[[[0,2],[7,8]],[[0,3],[2,7]],[[0,4],[6,9]],[[0,5],[6,8]],[[0,6],[5,9]],[[0,7],[5,8]],[[0,8],[2,9]],[[0,9],[5,6]],[[1,2],[4,9]],[[1,3],[4,8]],[[1,4],[3,9]],[[1,5],[4,7]],[[1,6],[3,8]],[[1,7],[4,6]],[[1,8],[3,7]],[[1,9],[3,6]],[[2,4],[3,5]],[[2,5],[3,4]],[[2,6],[5,7]],[[2,8],[7,9]]];
+const TEMPLATE=[[[8,1],[2,9]],[[5,7],[6,4]],[[8,2],[5,1]],[[6,9],[3,7]],[[8,5],[6,2]],[[3,1],[0,9]],[[8,6],[3,5]],[[0,2],[4,1]],[[8,3],[0,6]],[[4,5],[7,2]],[[8,0],[4,3]],[[7,6],[9,5]],[[8,4],[7,0]],[[9,3],[1,6]],[[8,7],[9,4]],[[1,0],[2,3]],[[8,9],[1,7]],[[2,4],[5,0]],[[1,2],[5,6]],[[3,0],[4,7]],[[2,5],[6,3]],[[0,4],[7,9]],[[9,1],[8,3]]];
 let single={players:[],availability:{}};let doubles={matches:[]};let db,doublesRef;
 const wednesdays=[];for(let d=new Date(2026,4,20);d<=new Date(2026,11,31);d.setDate(d.getDate()+1)){if(d.getDay()===3)wednesdays.push(d.toISOString().slice(0,10));}
 const fmt=d=>{const [y,m,day]=d.split('-');return day+'/'+m};
